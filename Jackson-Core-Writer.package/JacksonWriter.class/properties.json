@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "STONWriter",
+	"category" : "Jackson-Core-Writer",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "JacksonWriter",
+	"type" : "normal"
+}
