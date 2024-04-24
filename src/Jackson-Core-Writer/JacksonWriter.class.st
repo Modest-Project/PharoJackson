@@ -46,7 +46,7 @@ JacksonWriter >> encodeMap: pairs [
 	| first |
 	first := true.
 	writeStream nextPut: ${.
-	self nextPut: '@id' -> (objects size).
+	self writeAssociation: '@id' -> (objects size).
 
 	pairs isEmpty
 		ifTrue: [ self prettyPrintSpace ]
@@ -104,10 +104,8 @@ JacksonWriter >> with: object do: block [
 
 { #category : #writing }
 JacksonWriter >> writeAssociation: association [
-	
-	self
-		encodeKey: association key
-		value: association value
+
+	self encodeKey: association key value: association value
 ]
 
 { #category : #writing }
@@ -151,9 +149,9 @@ JacksonWriter >> writeObject: object streamMap: block [
 		| mapWriter |
 		mapWriter := STONMapWriter on: self.
 		writeStream nextPut: ${.
-		self nextPut: '@type' -> object className.
+		self writeAssociation: '@type' -> object className.
 		self mapElementSeparator.
-		self nextPut: '@id' -> (objects size).
+		self writeAssociation: '@id' -> (objects size).
 		self mapElementSeparator.
 		self indentedDo: [
 			self newlineIndent.

@@ -73,10 +73,11 @@ JacksonWriterTest >> testArrayWhenReference [
 
 { #category : #tests }
 JacksonWriterTest >> testAssociation [
-	self assert: (self serialize: (OrderedCollection new) -> 1) equals: '{"@type":"OrderedCollection","@id":1,"array":[null,null,null,null,null,null,null,null,null,null],"firstIndex":1,"lastIndex":0}:1'.
-	self assert: (self serialize: #bar -> 2) equals: '"bar":2'.
-	self assert: (self serialize: 'foo bar' -> #ok) equals: '"foo bar":"ok"'.
-	self assert: (self serialize: 123 -> 456) equals: '123:456'
+	
+	self assert: (self serialize: #bar -> 2) equals: '{"@type":"Association","@id":1,"key":"bar","value":2}'.
+	self assert: (self serialize: 'foo bar' -> #ok) equals: '{"@type":"Association","@id":2,"key":"foo bar","value":"ok"}'.
+	self assert: (self serialize: 123 -> 456) equals: '{"@type":"Association","@id":3,"key":123,"value":456}'.
+	self assert: (self serialize: (OrderedCollection new) -> 1) equals: '{"@type":"Association","@id":4,"key":{"@type":"OrderedCollection","@id":5,"array":[null,null,null,null,null,null,null,null,null,null],"firstIndex":1,"lastIndex":0},"value":1}'
 ]
 
 { #category : #tests }
