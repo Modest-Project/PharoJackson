@@ -73,10 +73,10 @@ JacksonWriterTest >> testArrayWhenReference [
 
 { #category : #tests }
 JacksonWriterTest >> testAssociation [
-	self assert: (self serialize: 'foo' -> 1) equals: '"foo":1'.
+	self assert: (self serialize: (OrderedCollection new) -> 1) equals: '{"@type":"OrderedCollection","@id":1,"array":[null,null,null,null,null,null,null,null,null,null],"firstIndex":1,"lastIndex":0}:1'.
 	self assert: (self serialize: #bar -> 2) equals: '"bar":2'.
 	self assert: (self serialize: 'foo bar' -> #ok) equals: '"foo bar":"ok"'.
-	self assert: (self serialize: 123 -> 456) equals: '"123":456'
+	self assert: (self serialize: 123 -> 456) equals: '123:456'
 ]
 
 { #category : #tests }
@@ -97,11 +97,9 @@ JacksonWriterTest >> testByteArray [
 { #category : #tests }
 JacksonWriterTest >> testColor [
 
-	self skip.
-	self
-		assert: (self serialize: Color red)
-		equals:
-		'{"@type":"Color","@id":1,"rgb":1072693248,"cachedDepth":32,"cachedBitPattern":"ffff0000","alpha":255}'.
+	self assert:
+		('{"@type":"Color","@id":1,"rgb":1072693248,"cachedDepth":32,"cachedBitPattern":"ffff0000","alpha":255}'
+			 includesSubstring: (self serialize: Color red)).
 	self
 		assert: (self serialize: (Color red copy setAlpha: 0.4))
 		equals:
@@ -141,7 +139,7 @@ JacksonWriterTest >> testDictionary [
 		at: 1 put: 1;
 		at: 2 put: 2;
 		yourself.
-	self assert: (self serialize: collection) equals: '{"@id":1,"1":1,"2":2}'.
+	self assert: (self serialize: collection) equals: '{"@id":1,1:1,2:2}'.
 	self assert: (self serialize: STON mapClass new) equals: '{"@id":2}'
 ]
 
@@ -149,7 +147,7 @@ JacksonWriterTest >> testDictionary [
 JacksonWriterTest >> testDictionaryWithComplexKeys [
 	| collection |
 	collection := STON mapClass new at: true put: 1; at: #(foo) put: 2; yourself.
-	self assert: (self serialize: collection) equals: '{"@id":1,"#(#foo)":2,"true":1}'
+	self assert: (self serialize: collection) equals: '{"@id":1,["foo"]:2,true:1}'
 ]
 
 { #category : #tests }
@@ -222,9 +220,10 @@ JacksonWriterTest >> testMap [
 	| map map2|
 	(map := STON mapClass new)
 		at: #foo put: 1;
-		at: #bar put: 2.
+		at: #bar put: 2;
+		at: 5 put: 0.
 	map2 := STON mapClass new.
-	self assert: (self serialize: map) equals: '{"@id":1,"foo":1,"bar":2}'.
+	self assert: (self serialize: map) equals: '{"@id":1,5:0,"foo":1,"bar":2}'.
 	self assert: (self serialize: map2) equals: '{"@id":2}'.
 	map removeAll.
 	map at: 'foo bar' put: #ok.

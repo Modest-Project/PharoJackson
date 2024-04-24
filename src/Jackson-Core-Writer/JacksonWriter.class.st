@@ -5,6 +5,15 @@ Class {
 }
 
 { #category : #private }
+JacksonWriter class >> serialize: anObject [
+
+	^ String streamContents: [ :stream |
+		  self new
+			  on: stream;
+			  nextPut: anObject ]
+]
+
+{ #category : #private }
 JacksonWriter >> encodeCharacter: char [
 	| code encoding |
 	"STONCharacters contains for the lower 127 characters (codes 0 to 126) either nil (unknown),
@@ -24,8 +33,6 @@ JacksonWriter >> encodeCharacter: char [
 { #category : #private }
 JacksonWriter >> encodeKey: key value: value [
 
-	key isString ifFalse: [
-		self error: 'JSON key names in objects must be strings' ].
 	self nextPut: key.
 	self prettyPrintSpace.
 	writeStream nextPut: $:.
@@ -51,7 +58,7 @@ JacksonWriter >> encodeMap: pairs [
 					first
 						ifTrue: [ first := false ]
 						ifFalse: [ self mapElementSeparator ].
-					self encodeKey: key asString value: value ] ].
+					self encodeKey: key value: value ] ].
 			self newlineIndent ].
 	writeStream nextPut: $}
 ]
@@ -99,7 +106,7 @@ JacksonWriter >> with: object do: block [
 JacksonWriter >> writeAssociation: association [
 	
 	self
-		encodeKey: association key asString
+		encodeKey: association key
 		value: association value
 ]
 
