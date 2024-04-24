@@ -96,6 +96,11 @@ JacksonWriterTest >> testByteArray [
 ]
 
 { #category : #tests }
+JacksonWriterTest >> testClass [
+	self assert: (self serialize: Point) equals: '{"@type":"Class","@id":1,"name":"Point"}'
+]
+
+{ #category : #tests }
 JacksonWriterTest >> testColor [
 
 	| red |
@@ -155,6 +160,35 @@ JacksonWriterTest >> testDictionaryWithComplexKeys [
 ]
 
 { #category : #tests }
+JacksonWriterTest >> testDiskFile [
+	self assert: (self serialize: '/test/foo.txt' asFileReference) equals: '{"@type":"FileReference","@id":1,"path":"/test/foo.txt","filesystem":{"@type":"FileSystem","@id":2,"store":{"@type":"MacStore","@id":3,"maxFileNameLength":255}}}'.
+	self assert: (self serialize: '/tmp/foo.txt' asFileReference) equals: '{"@type":"FileReference","@id":4,"path":"/tmp/foo.txt","filesystem":{"@ref":2}}'.
+	self assert: (self serialize: 'tmp/foo.txt' asFileReference) equals: '{"@type":"FileReference","@id":5,"path":"tmp/foo.txt","filesystem":{"@ref":2}}'.
+	self assert: (self serialize: '/tmp' asFileReference) equals: '{"@type":"FileReference","@id":6,"path":"/tmp","filesystem":{"@ref":2}}'.
+	self assert: (self serialize: '/tmp/' asFileReference) equals: '{"@type":"FileReference","@id":7,"path":"/tmp","filesystem":{"@ref":2}}'
+]
+
+{ #category : #tests }
+JacksonWriterTest >> testEmptyDictionaryPretty [
+	self assert: (self serializePretty: STON mapClass new) equals: '{"@id" : 1 }'
+]
+
+{ #category : #tests }
+JacksonWriterTest >> testFloat [
+	self assert: (self serialize: 1.5) equals: '1.5'.
+	self assert: (self serialize: 0.0) equals: '0.0'.
+	self assert: (self serialize: -1.5) equals: '-1.5'.
+	self assert: ((self serialize: Float pi) beginsWith: '3.14159').
+	self assert: ((self serialize: (1 / 3) asFloat) beginsWith: '0.333').
+	self assert: (self serialize: (10 raisedTo: 100) asFloat) equals: '1.0e100'.
+	self assert: (self serialize: (10 raisedTo: -50) asFloat) equals: '1.0e-50'.
+	self assert: (self serialize: (10 raisedTo: -50) asFloat negated) equals: '-1.0e-50'.
+	self assert: (self serialize: Float nan) equals: '"nan"'.
+	self assert: (self serialize: Float infinity) equals: '"infinity"'.
+	self assert: (self serialize: Float negativeInfinity) equals: '"negativeInfinity"'
+]
+
+{ #category : #tests }
 JacksonWriterTest >> testId [
 
 	| user |
@@ -210,6 +244,17 @@ JacksonWriterTest >> testIdWhenReference [
 		assert: (self serialize: user)
 		equals:
 		'{"@ref":1}'
+]
+
+{ #category : #tests }
+JacksonWriterTest >> testIdentityDictionary [
+	| collection |
+	collection := IdentityDictionary new
+		at: 1 put: 1;
+		at: 2 put: 2;
+		yourself.
+	self assert: (self serialize: collection) equals: '{"@id":1,1:1,2:2}'.
+	self assert: (self serialize: IdentityDictionary new) equals: '{"@id":2}'
 ]
 
 { #category : #tests }

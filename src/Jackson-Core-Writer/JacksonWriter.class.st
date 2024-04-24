@@ -109,6 +109,20 @@ JacksonWriter >> writeAssociation: association [
 ]
 
 { #category : #writing }
+JacksonWriter >> writeFloat: float [
+	float isFinite
+		ifTrue: [ writeStream print: float ]
+		ifFalse: [ | argument |
+			argument := float isNaN
+				ifTrue: [ #nan ]
+				ifFalse: [
+					float negative
+						ifTrue: [ #negativeInfinity ]
+						ifFalse: [ #infinity ] ].
+			self writeString: argument ]
+]
+
+{ #category : #writing }
 JacksonWriter >> writeFraction: fraction [
 
 	writeStream
