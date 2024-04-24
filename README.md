@@ -3,6 +3,6 @@
 ```
 Metacello new
 	baseline: 'JacksonWriter';
-	repository: 'https://github.com/Modest-Project/PharoJackson:master';
-	load
+  	repository: 'github://Modest-Project/PharoJackson:main/src';
+  	load
 ```
