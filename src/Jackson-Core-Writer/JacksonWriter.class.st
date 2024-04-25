@@ -32,12 +32,31 @@ JacksonWriter >> encodeCharacter: char [
 
 { #category : #private }
 JacksonWriter >> encodeKey: key value: value [
+	"For Json key/value like @type or fields"
 
 	self nextPut: key.
 	self prettyPrintSpace.
 	writeStream nextPut: $:.
 	self prettyPrintSpace.
 	self nextPut: value
+]
+
+{ #category : #writing }
+JacksonWriter >> encodeList: elements [
+
+	writeStream nextPut: $[.
+	writeStream print: objects size.
+	elements isEmpty
+		ifTrue: [ self prettyPrintSpace ]
+		ifFalse: [
+			self listElementSeparator. "For the id"
+			self indentedDo: [
+				self newlineIndent.
+				elements
+					do: [ :each | self nextPut: each ]
+					separatedBy: [ self listElementSeparator ] ].
+			self newlineIndent ].
+	writeStream nextPut: $]
 ]
 
 { #category : #writing }
@@ -58,9 +77,22 @@ JacksonWriter >> encodeMap: pairs [
 					first
 						ifTrue: [ first := false ]
 						ifFalse: [ self mapElementSeparator ].
-					self encodeKey: key value: value ] ].
+					self encodeMapKey: key value: value ] ].
 			self newlineIndent ].
 	writeStream nextPut: $}
+]
+
+{ #category : #private }
+JacksonWriter >> encodeMapKey: key value: value [
+	"For Dictionary key/value"
+
+	writeStream nextPut: $".
+	self nextPut: key.
+	self prettyPrintSpace.
+	writeStream nextPut: $".
+	writeStream nextPut: $:.
+	self prettyPrintSpace.
+	self nextPut: value
 ]
 
 { #category : #private }
@@ -106,6 +138,23 @@ JacksonWriter >> with: object do: block [
 JacksonWriter >> writeAssociation: association [
 
 	self encodeKey: association key value: association value
+]
+
+{ #category : #writing }
+JacksonWriter >> writeClass: anObject [
+	| instanceVariableNames |
+	(instanceVariableNames := anObject stonAllInstVarNames) isEmpty
+		ifTrue: [
+			self writeObject: anObject do: [ self encodeMap: #() ] ]
+		ifFalse: [
+			self writeObject: anObject streamMap: [ :dictionary |
+				instanceVariableNames do: [ :each |
+					(anObject instVarNamed: each)
+						ifNotNil: [ :value |
+							dictionary at: each asSymbol put: value ]
+						ifNil: [
+							anObject stonShouldWriteNilInstVars
+								ifTrue: [ dictionary at: each asSymbol put: nil ] ] ] ] ]
 ]
 
 { #category : #writing }
