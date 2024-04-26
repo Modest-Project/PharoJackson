@@ -8,19 +8,22 @@ Metacello new
 ```
 ## Examples
 ```st
-JacksonWriter serialize: #(1 2)
+array := #(1 2).
+JacksonWriter serialize: array
 
 "returns '[1,null,null,null]' with id '1' as first element"
 ```
 
 ```st
-JacksonWriter serialize: JacksonWriter serialize: (Dictionary newFrom: {1->2. 3->4 } )
+dictionary := Dictionary newFrom: {1->2. 3->4 }.
+JacksonWriter serialize: JacksonWriter serialize: dictionary
 
 "returns '{"@type":"Dictionary","@id":1,"array":[[1,2],[3,4]]}' with an array of key/value array"
 ```
 
 ```st
-JacksonWriter serialize: $a
+character := $a.
+JacksonWriter serialize: character
 
 "returns '{"@type":"Character","value":97}'"
 ```
