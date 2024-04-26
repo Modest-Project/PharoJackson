@@ -6,9 +6,15 @@ Metacello new
   	repository: 'github://Modest-Project/PharoJackson:main/src';
   	load
 ```
-## Array
-`{nil. nil. nil}` becomes `[1,null,null,null]` with id '1' as first element
-## Dictionary
-`a Dictionary(1->2 )` becomes `{"@type":"Dictionary","@id":1,"array":[[1,2]]}` with an array of key/value array
-## Character
-`$a` becomes `{"@type":"Character","asciiValue":97}`
+## Examples
+```
+JacksonWriter serialize: #(1 2)	"returns [1,null,null,null] with id '1' as first element"
+```
+
+```
+JacksonWriter serialize: JacksonWriter serialize: (Dictionary newFrom: {1->2. 3->4 } )	"returns {"@type":"Dictionary","@id":1,"array":[[1,2],[3,4]]} with an array of key/value array"
+```
+
+```
+JacksonWriter serialize: $a	"returns {"@type":"Character","value":97}"
+```
