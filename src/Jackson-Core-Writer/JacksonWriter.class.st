@@ -65,12 +65,17 @@ JacksonWriter >> encodeMap: pairs [
 	| first |
 	first := true.
 	writeStream nextPut: ${.
-	self writeAssociation: '@id' -> (objects size).
+	self writeAssociation: '@type' -> pairs className.
+	self mapElementSeparator.
+	self writeAssociation: '@id' -> objects size.
+	self mapElementSeparator.
+	self writeString: 'array'.
+	writeStream nextPut: $:.
 
+	writeStream nextPut: $[.
 	pairs isEmpty
 		ifTrue: [ self prettyPrintSpace ]
 		ifFalse: [
-			self mapElementSeparator.
 			self indentedDo: [
 				self newlineIndent.
 				pairs keysAndValuesDo: [ :key :value |
@@ -79,20 +84,22 @@ JacksonWriter >> encodeMap: pairs [
 						ifFalse: [ self mapElementSeparator ].
 					self encodeMapKey: key value: value ] ].
 			self newlineIndent ].
+	writeStream nextPut: $].
+
 	writeStream nextPut: $}
 ]
 
 { #category : #private }
 JacksonWriter >> encodeMapKey: key value: value [
 	"For Dictionary key/value"
-
-	writeStream nextPut: $".
+	
+	writeStream nextPut: $[.
 	self nextPut: key.
 	self prettyPrintSpace.
-	writeStream nextPut: $".
-	writeStream nextPut: $:.
+	self listElementSeparator.
 	self prettyPrintSpace.
-	self nextPut: value
+	self nextPut: value.
+	writeStream nextPut: $]
 ]
 
 { #category : #private }
@@ -138,6 +145,18 @@ JacksonWriter >> with: object do: block [
 JacksonWriter >> writeAssociation: association [
 
 	self encodeKey: association key value: association value
+]
+
+{ #category : #writing }
+JacksonWriter >> writeCharacter: character [
+
+	writeStream nextPut: ${.
+	self writeAssociation: '@type' -> character className.
+	self mapElementSeparator.
+	self writeString: 'asciiValue'.
+	writeStream nextPut: $:.
+	self writeInteger: character asciiValue.
+	writeStream nextPut: $}
 ]
 
 { #category : #writing }
@@ -188,9 +207,8 @@ JacksonWriter >> writeNull [
 
 { #category : #writing }
 JacksonWriter >> writeObject: anObject do: block [
+
 	self with: anObject do: [
-		"although there is no check here, class names are expected to conform
-		to first STONReader>>#isClassStartChar: then STONReader>>#isClassChar:"
 		self prettyPrintSpace.
 		block value ]
 ]
