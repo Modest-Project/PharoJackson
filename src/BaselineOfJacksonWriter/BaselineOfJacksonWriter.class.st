@@ -11,7 +11,7 @@ BaselineOfJacksonWriter >> baseline: spec [
 	spec for: #common do: [
 		"Packages"
 		spec
-			package: #'Jackson-Core-Writer' with: [spec requires: #( 'STON-Core' )];
+			package: #'Jackson-Core-Writer';
 			package: #'Jackson-Core-Tests' with: [ spec requires: #( 'Jackson-Core-Writer' ) ].
 		"Groups"
 		spec
