@@ -100,7 +100,7 @@ JacksonWriterTest >> testCharacter [
 
 	self
 		assert: (self serialize: $a)
-		equals: '{"@type":"Character","asciiValue":97}'
+		equals: '{"@type":"Character","value":97}'
 ]
 
 { #category : #tests }
@@ -175,12 +175,6 @@ JacksonWriterTest >> testDiskFile [
 	self assert: (self serialize: 'tmp/foo.txt' asFileReference) equals: '{"@type":"FileReference","@id":5,"path":"tmp/foo.txt","filesystem":{"@ref":2}}'.
 	self assert: (self serialize: '/tmp' asFileReference) equals: '{"@type":"FileReference","@id":6,"path":"/tmp","filesystem":{"@ref":2}}'.
 	self assert: (self serialize: '/tmp/' asFileReference) equals: '{"@type":"FileReference","@id":7,"path":"/tmp","filesystem":{"@ref":2}}'
-]
-
-{ #category : #tests }
-JacksonWriterTest >> testEmptyDictionaryPretty [
-
-	self skip
 ]
 
 { #category : #tests }
@@ -299,7 +293,7 @@ JacksonWriterTest >> testMimeType [
 		equals: '{"@type":"ZnMimeType","@id":1,"main":"application","sub":"json"}'.
 	self
 		assert: (self serialize: ZnMimeType textPlain)
-		equals: '{"@type":"ZnMimeType","@id":2,"main":"text","sub":"plain","parameters":{"@type":"SmallDictionary","@id":3,"array":[["charset","utf-8"]]}}'
+		equals: '{"@type":"ZnMimeType","@id":2,"main":"text","sub":"plain","parameters":{"@type":"SmallDictionary","@id":3,"keys":[4,"charset",null],"values":[5,"utf-8",null],"size":1}}'
 ]
 
 { #category : #tests }
