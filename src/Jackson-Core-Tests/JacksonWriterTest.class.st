@@ -73,11 +73,21 @@ JacksonWriterTest >> testArrayWhenReference [
 
 { #category : #tests }
 JacksonWriterTest >> testAssociation [
-	
-	self assert: (self serialize: #bar -> 2) equals: '{"@type":"Association","@id":1,"key":"bar","value":2}'.
-	self assert: (self serialize: 'foo bar' -> #ok) equals: '{"@type":"Association","@id":2,"key":"foo bar","value":"ok"}'.
-	self assert: (self serialize: 123 -> 456) equals: '{"@type":"Association","@id":3,"key":123,"value":456}'.
-	self assert: (self serialize: (OrderedCollection new) -> 1) equals: '{"@type":"Association","@id":4,"key":{"@type":"OrderedCollection","@id":5,"array":[6,null,null,null,null,null,null,null,null,null,null],"firstIndex":1,"lastIndex":0},"value":1}'
+
+	self
+		assert: (self serialize: #bar -> 2)
+		equals: '{"@type":"Association","@id":1,"key":"bar","value":2}'.
+	self
+		assert: (self serialize: 'foo bar' -> #ok)
+		equals:
+		'{"@type":"Association","@id":2,"key":"foo bar","value":"ok"}'.
+	self
+		assert: (self serialize: 123 -> 456)
+		equals: '{"@type":"Association","@id":3,"key":123,"value":456}'.
+	self
+		assert: (self serialize: OrderedCollection new -> 1)
+		equals:
+		'{"@type":"Association","@id":4,"key":{"@type":"OrderedCollection","@id":5,"array":[6]},"value":1}'
 ]
 
 { #category : #tests }
@@ -303,10 +313,20 @@ JacksonWriterTest >> testNil [
 
 { #category : #tests }
 JacksonWriterTest >> testOrderedCollection [
+
 	| collection |
-	collection := OrderedCollection with: 1 with: 2 with: 3.
-	self assert: (self serialize: collection) equals: '{"@type":"OrderedCollection","@id":1,"array":[2,1,2,3,null,null,null,null,null,null,null],"firstIndex":1,"lastIndex":3}'.
-	self assert: (self serialize: OrderedCollection new) equals: '{"@type":"OrderedCollection","@id":3,"array":[4,null,null,null,null,null,null,null,null,null,null],"firstIndex":1,"lastIndex":0}'
+	collection := OrderedCollection
+		              with: 1
+		              with: 2
+		              with: 3
+		              with: nil.
+	self
+		assert: (self serialize: collection)
+		equals:
+		'{"@type":"OrderedCollection","@id":1,"array":[2,1,2,3,null]}'.
+	self
+		assert: (self serialize: OrderedCollection new)
+		equals: '{"@type":"OrderedCollection","@id":3,"array":[4]}'
 ]
 
 { #category : #tests }
@@ -342,6 +362,24 @@ JacksonWriterTest >> testScaledDecimal [
 	self assert: (self serialize: -1/3s2) equals: '-1/3s2'.
 	self assert: (self serialize: 1/3s10) equals: '1/3s10'.
 	self assert: (self serialize: -1/3s10) equals: '-1/3s10'
+]
+
+{ #category : #tests }
+JacksonWriterTest >> testSet [
+
+	| collection |
+	collection := Set
+		              with: 1
+		              with: 2
+		              with: 3
+		              with: nil.
+	self
+		assert: (self serialize: collection)
+		equals:
+		'{"@type":"Set","@id":1,"array":[2,1,2,3,null]}'.
+	self
+		assert: (self serialize: Set new)
+		equals: '{"@type":"Set","@id":3,"array":[4]}'
 ]
 
 { #category : #tests }
@@ -381,16 +419,16 @@ JacksonWriterTest >> testTime [
 JacksonWriterTest >> testURL [
 	self
 		assert: (self serialize: 'https://pharo.org/files/pharo.png' asUrl)
-		equals: '{"@type":"ZnUrl","@id":1,"scheme":"https","host":"pharo.org","segments":{"@type":"OrderedCollection","@id":2,"array":[3,"files","pharo.png",null,null,null,null,null,null,null,null],"firstIndex":1,"lastIndex":2}}'.
+		equals: '{"@type":"ZnUrl","@id":1,"scheme":"https","host":"pharo.org","segments":{"@type":"OrderedCollection","@id":2,"array":[3,"files","pharo.png"]}}'.
 	self
 		assert: (self serialize: 'mailto:sven@stfx.eu' asUrl)
 		equals: '{"@type":"ZnUrl","@id":4,"scheme":"mailto","host":"stfx.eu","username":"sven"}'.
 	self
 		assert: (self serialize: 'file:///var/log/system.log' asUrl)
-		equals: '{"@type":"ZnUrl","@id":5,"scheme":"file","segments":{"@type":"OrderedCollection","@id":6,"array":[7,"var","log","system.log",null,null,null,null,null,null,null],"firstIndex":1,"lastIndex":3}}'.
+		equals: '{"@type":"ZnUrl","@id":5,"scheme":"file","segments":{"@type":"OrderedCollection","@id":6,"array":[7,"var","log","system.log"]}}'.
 	self
 		assert: (self serialize: 'scheme://user:password@host:123/var/log/system.log?foo=1&bar#frag' asUrl)
-		equals: '{"@type":"ZnUrl","@id":8,"scheme":"scheme","host":"host","port":123,"segments":{"@type":"OrderedCollection","@id":9,"array":[10,"var","log","system.log",null,null,null,null,null,null,null],"firstIndex":1,"lastIndex":3},"query":{"@type":"ZnMultiValueDictionary","@id":11,"dictionary":{"@type":"Dictionary","@id":12,"array":[["bar",null],["foo","1"]]},"orderedKeys":[13,"foo","bar",null,null,null,null,null,null,null,null],"limit":256},"fragment":"frag","username":"user","password":"password"}'
+		equals: '{"@type":"ZnUrl","@id":8,"scheme":"scheme","host":"host","port":123,"segments":{"@type":"OrderedCollection","@id":9,"array":[10,"var","log","system.log"]},"query":{"@type":"ZnMultiValueDictionary","@id":11,"dictionary":{"@type":"Dictionary","@id":12,"array":[["bar",null],["foo","1"]]},"orderedKeys":[13,"foo","bar",null,null,null,null,null,null,null,null],"limit":256},"fragment":"frag","username":"user","password":"password"}'
 ]
 
 { #category : #tests }

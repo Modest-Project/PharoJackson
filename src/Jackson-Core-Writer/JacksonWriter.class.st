@@ -13,6 +13,20 @@ JacksonWriter class >> serialize: anObject [
 			  nextPut: anObject ]
 ]
 
+{ #category : #writing }
+JacksonWriter >> encodeCollection: collection [
+
+	writeStream nextPut: ${.
+	self writeAssociation: '@type' -> collection className.
+	self mapElementSeparator.
+	self writeAssociation: '@id' -> objects size.
+	self mapElementSeparator.
+	self writeString: 'array'.
+	writeStream nextPut: $:.
+	self writeList: collection asArray.
+	writeStream nextPut: $}
+]
+
 { #category : #private }
 JacksonWriter >> encodeKey: key value: value [
 	"For Json key/value like @type or fields"
@@ -145,6 +159,12 @@ JacksonWriter >> writeClass: anObject [
 						ifNil: [
 							anObject stonShouldWriteNilInstVars ifTrue: [
 								dictionary at: each asSymbol put: nil ] ] ] ] ]
+]
+
+{ #category : #writing }
+JacksonWriter >> writeCollection: collection [
+
+	self with: collection do: [ self encodeCollection: collection ]
 ]
 
 { #category : #writing }
