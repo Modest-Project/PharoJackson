@@ -115,8 +115,10 @@ JacksonWriterTest >> testCharacter [
 
 { #category : #tests }
 JacksonWriterTest >> testClass [
-	self skip.
-	self assert: (self serialize: Point) equals: '{"@type":"Class","@id":1,"name":"Point","vars":[2,"x","y"]}'		"TO DO"
+
+	self
+		assert: (self serialize: Point)
+		equals: '{"@type":"Class","name":"Point"}' "TO DO"
 ]
 
 { #category : #tests }
