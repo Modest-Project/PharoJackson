@@ -177,17 +177,10 @@ JacksonWriter >> writeNull [
 { #category : #writing }
 JacksonWriter >> writeObject: anObject [
 
-	| instanceVariableNames |
-	(instanceVariableNames := anObject class allInstVarNames) isEmpty
-		ifTrue: [ self writeObject: anObject do: [ self encodeMap: #(  ) ] ]
-		ifFalse: [
-			self writeObject: anObject streamMap: [ :dictionary |
-				instanceVariableNames do: [ :each |
-					(anObject instVarNamed: each)
-						ifNotNil: [ :value | dictionary at: each asSymbol put: value ]
-						ifNil: [
-							anObject jacksonShouldWriteNilInstVars ifTrue: [
-								dictionary at: each asSymbol put: nil ] ] ] ] ]
+    self writeObject: anObject streamMap: [ :map |
+        anObject class allInstVarNames do: [ :each |
+            (anObject instVarNamed: each) ifNotNil: [ :value |
+                map at: each asSymbol put: value ] ] ]
 ]
 
 { #category : #writing }
@@ -200,15 +193,17 @@ JacksonWriter >> writeObject: anObject do: block [
 JacksonWriter >> writeObject: object streamMap: block [
 
 	self writeObject: object do: [
-		| mapWriter |
+		| mapWriter id position |
 		mapWriter := STONMapWriter on: self.
 		writeStream nextPut: ${.
 		self writeAssociation: '@type' -> object className.
 		self mapElementSeparator.
-		self writeAssociation: '@id' -> objects size.
-		self mapElementSeparator.
-		self indentedDo: [
-			block value: mapWriter ].
+		id := objects size.
+		"check if anything was written to avoid trailing comma"
+		position := writeStream position.
+		self indentedDo: [ block value: mapWriter ].
+		position = writeStream position ifFalse: [ self mapElementSeparator ].
+		self writeAssociation: '@id' -> id.
 		writeStream nextPut: $} ]
 ]
 
