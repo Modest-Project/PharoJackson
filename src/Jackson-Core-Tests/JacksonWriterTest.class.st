@@ -92,12 +92,15 @@ JacksonWriterTest >> testAssociation [
 
 { #category : #tests }
 JacksonWriterTest >> testBag [
+
 	self
-		assert: (self serialize: (Bag withAll: #(a a)))
-		equals: '{"@type":"Bag","@id":1,"contents":{"@type":"Dictionary","@id":2,"array":[["a",2]]}}'.
+		assert: (self serialize: (Bag withAll: #( a a )))
+		equals:
+		'{"@type":"Bag","@id":1,"contents":{"@type":"Dictionary","@id":2,"tally":1,"array":[3,null,null,{"@type":"Association","@id":4,"key":"a","value":2},null,null]}}'.
 	self
 		assert: (self serialize: Bag new)
-		equals: '{"@type":"Bag","@id":3,"contents":{"@type":"Dictionary","@id":4,"array":[]}}'
+		equals:
+		'{"@type":"Bag","@id":5,"contents":{"@type":"Dictionary","@id":6,"tally":0,"array":[7,null,null,null,null,null,null,null]}}'
 ]
 
 { #category : #tests }
@@ -164,12 +167,18 @@ JacksonWriterTest >> testDateAndTime [
 
 { #category : #tests }
 JacksonWriterTest >> testDictionary [
+
 	| collection |
 	collection := STON mapClass new
-		at: 1 put: 1;
-		yourself.
-	self assert: (self serialize: collection) equals: '{"@type":"Dictionary","@id":1,"array":[[1,1]]}'.
-	self assert: (self serialize: STON mapClass new) equals: '{"@type":"Dictionary","@id":2,"array":[]}'
+		              at: 1 put: 2;
+		              yourself.
+	self
+		assert: (self serialize: collection)
+		equals:
+		'{"@type":"Dictionary","@id":1,"tally":1,"array":[2,{"@type":"Association","@id":3,"key":1,"value":2},null,null,null,null]}'.
+	self
+		assert: (self serialize: STON mapClass new)
+		equals: '{"@type":"Dictionary","@id":4,"tally":0,"array":[5,null,null,null,null,null]}'
 ]
 
 { #category : #tests }
@@ -177,7 +186,7 @@ JacksonWriterTest >> testDictionaryWithComplexKeys [
 	| collection |
 	collection := STON mapClass new at: true put: 1; at: #(foo) put: 2; yourself.
 	
-	self assert: (self serialize: collection) equals: '{"@type":"Dictionary","@id":1,"array":[[[2,"foo"],2],[true,1]]}'
+	self assert: (self serialize: collection) equals: '{"@type":"Dictionary","@id":1,"tally":2,"array":[2,{"@type":"Association","@id":3,"key":[4,"foo"],"value":2},null,null,null,{"@type":"Association","@id":5,"key":true,"value":1}]}'
 ]
 
 { #category : #tests }
@@ -264,13 +273,19 @@ JacksonWriterTest >> testIdWhenReference [
 
 { #category : #tests }
 JacksonWriterTest >> testIdentityDictionary [
+
 	| collection |
 	collection := IdentityDictionary new
-		at: 1 put: 1;
-		at: 2 put: 2;
-		yourself.
-	self assert: (self serialize: collection) equals: '{"@type":"IdentityDictionary","@id":1,"array":[[1,1],[2,2]]}'.
-	self assert: (self serialize: IdentityDictionary new) equals: '{"@type":"IdentityDictionary","@id":2,"array":[]}'
+		              at: 1 put: 1;
+		              at: 2 put: 2;
+		              yourself.
+	self
+		assert: (self serialize: collection)
+		equals:
+		'{"@type":"IdentityDictionary","@id":1,"tally":2,"array":[2,{"@type":"Association","@id":3,"key":1,"value":1},{"@type":"Association","@id":4,"key":2,"value":2},null,null,null]}'.
+	self
+		assert: (self serialize: IdentityDictionary new)
+		equals: '{"@type":"IdentityDictionary","@id":5,"tally":0,"array":[6,null,null,null,null,null]}'
 ]
 
 { #category : #tests }
@@ -282,30 +297,40 @@ JacksonWriterTest >> testList [
 
 { #category : #tests }
 JacksonWriterTest >> testMap [
-	| map map2|
+
+	| map map2 |
 	(map := STON mapClass new)
 		at: #foo put: 1;
 		at: #bar put: 2;
 		at: 5 put: 0.
 	map2 := STON mapClass new.
-	self assert: (self serialize: map) equals: '{"@type":"Dictionary","@id":1,"array":[[5,0],["foo",1],["bar",2]]}'.
-	self assert: (self serialize: map2) equals: '{"@type":"Dictionary","@id":2,"array":[]}'.
+	self
+		assert: (self serialize: map)
+		equals:
+		'{"@type":"Dictionary","@id":1,"tally":3,"array":[2,{"@type":"Association","@id":3,"key":5,"value":0},null,{"@type":"Association","@id":4,"key":"foo","value":1},{"@type":"Association","@id":5,"key":"bar","value":2},null]}'.
+	self
+		assert: (self serialize: map2)
+		equals:
+		'{"@type":"Dictionary","@id":6,"tally":0,"array":[7,null,null,null,null,null]}'.
 	map removeAll.
 	map at: 'foo bar' put: #ok.
 	self assert: (self serialize: map) equals: '{"@ref":1}'.
 	map removeAll.
 	map at: 123 put: 456.
-	self assert: (self serialize: map2) equals: '{"@ref":2}'
+	self assert: (self serialize: map2) equals: '{"@ref":6}'
 ]
 
 { #category : #tests }
 JacksonWriterTest >> testMimeType [
+
 	self
 		assert: (self serialize: ZnMimeType applicationJson)
-		equals: '{"@type":"ZnMimeType","@id":1,"main":"application","sub":"json"}'.
+		equals:
+		'{"@type":"ZnMimeType","@id":1,"main":"application","sub":"json","parameters":null}'.
 	self
 		assert: (self serialize: ZnMimeType textPlain)
-		equals: '{"@type":"ZnMimeType","@id":2,"main":"text","sub":"plain","parameters":{"@type":"SmallDictionary","@id":3,"keys":[4,"charset",null],"values":[5,"utf-8",null],"size":1}}'
+		equals:
+		'{"@type":"ZnMimeType","@id":2,"main":"text","sub":"plain","parameters":{"@type":"SmallDictionary","@id":3,"keys":[4,"charset",null],"values":[5,"utf-8",null],"size":1}}'
 ]
 
 { #category : #tests }

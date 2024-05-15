@@ -51,31 +51,6 @@ JacksonWriter >> encodeList: elements [
 	writeStream nextPut: $]
 ]
 
-{ #category : #writing }
-JacksonWriter >> encodeMap: pairs [
-
-	| first |
-	first := true.
-	writeStream nextPut: ${.
-	self writeAssociation: '@type' -> pairs className.
-	self mapElementSeparator.
-	self writeAssociation: '@id' -> objects size.
-	self mapElementSeparator.
-	self writeString: 'array'.
-	writeStream nextPut: $:.
-	writeStream nextPut: $[.
-	pairs isEmpty
-		ifFalse: [
-			self indentedDo: [
-				pairs keysAndValuesDo: [ :key :value |
-					first
-						ifTrue: [ first := false ]
-						ifFalse: [ self mapElementSeparator ].
-					self encodeMapKey: key value: value ] ]].
-	writeStream nextPut: $].
-	writeStream nextPut: $}
-]
-
 { #category : #private }
 JacksonWriter >> encodeMapKey: key value: value [
 	"For Dictionary key/value"
@@ -131,6 +106,13 @@ JacksonWriter >> with: object do: block [
 JacksonWriter >> writeAssociation: association [
 
 	self encodeKey: association key value: association value
+]
+
+{ #category : #writing }
+JacksonWriter >> writeBlock: aBlock [
+	
+	"TODO"
+	self nextPut: nil
 ]
 
 { #category : #writing }
@@ -190,6 +172,22 @@ JacksonWriter >> writeFraction: fraction [
 JacksonWriter >> writeNull [
 
 	writeStream nextPutAll: 'null'
+]
+
+{ #category : #writing }
+JacksonWriter >> writeObject: anObject [
+
+	| instanceVariableNames |
+	(instanceVariableNames := anObject class allInstVarNames) isEmpty
+		ifTrue: [ self writeObject: anObject do: [ self encodeMap: #(  ) ] ]
+		ifFalse: [
+			self writeObject: anObject streamMap: [ :dictionary |
+				instanceVariableNames do: [ :each |
+					(anObject instVarNamed: each)
+						ifNotNil: [ :value | dictionary at: each asSymbol put: value ]
+						ifNil: [
+							anObject jacksonShouldWriteNilInstVars ifTrue: [
+								dictionary at: each asSymbol put: nil ] ] ] ] ]
 ]
 
 { #category : #writing }
