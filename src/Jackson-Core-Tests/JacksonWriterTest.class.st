@@ -51,13 +51,23 @@ JacksonWriterTest >> setUp [
 
 { #category : #tests }
 JacksonWriterTest >> testArray [
-	| array |
+
+	| array array2 |
 	array := (Array new: 5)
-		at: 1 put: 1;
-		at: 3 put: 3;
-		yourself.
-	self assert: (self serialize: array) equals: '[1,1,null,3,null,null]'.	"the first element is the id"
-	self assert: (self serialize: Array new) equals: '[2]'
+		         at: 1 put: 1;
+		         at: 3 put: 3;
+		         yourself.
+	array2 := (Array new: 2)
+		          at: 1 put: 1;
+		          yourself.
+	self assert: (self serialize: array) equals: '[1,1,null,3,null,null]'. "the first element is the id"
+	self assert: (self serialize: Array new) equals: '[2]'.
+	self
+		assert: (self serialize: (Dictionary new
+					  at: 1 put: array2;
+					  yourself))
+		equals:
+		'{"@type":"Dictionary","tally":1,"array":[4,{"@type":"Association","key":1,"value":[6,1,null],"@id":5},null,null,null,null],"@id":3}'
 ]
 
 { #category : #tests }
@@ -101,6 +111,18 @@ JacksonWriterTest >> testBag [
 		assert: (self serialize: Bag new)
 		equals:
 		'{"@type":"Bag","contents":{"@type":"Dictionary","tally":0,"array":[7,null,null,null,null,null,null,null],"@id":6},"@id":5}'
+]
+
+{ #category : #tests }
+JacksonWriterTest >> testBlock [
+
+	| block c |
+	c := 10.
+	block := [ :a :b | a + b * c ].
+	self
+		assert: (self serialize: block)
+		equals:
+		'{"@type":"FullBlockClosure","compiledBlock":{"@type":"CompiledBlock","source":"[ :a :b | a + b * c ]","@id":2},"numArgs":2,"@id":1}'
 ]
 
 { #category : #tests }
