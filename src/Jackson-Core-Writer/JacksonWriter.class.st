@@ -52,31 +52,6 @@ JacksonWriter >> encodeList: elements [
 	writeStream nextPut: $]
 ]
 
-{ #category : 'writing' }
-JacksonWriter >> encodeMap: pairs [
-
-	| first |
-	first := true.
-	writeStream nextPut: ${.
-	self writeAssociation: '@type' -> pairs className.
-	self mapElementSeparator.
-	self writeAssociation: '@id' -> objects size.
-	self mapElementSeparator.
-	self writeString: 'array'.
-	writeStream nextPut: $:.
-	writeStream nextPut: $[.
-	pairs isEmpty
-		ifFalse: [
-			self indentedDo: [
-				pairs keysAndValuesDo: [ :key :value |
-					first
-						ifTrue: [ first := false ]
-						ifFalse: [ self mapElementSeparator ].
-					self encodeMapKey: key value: value ] ]].
-	writeStream nextPut: $].
-	writeStream nextPut: $}
-]
-
 { #category : 'private' }
 JacksonWriter >> encodeMapKey: key value: value [
 	"For Dictionary key/value"
@@ -132,6 +107,13 @@ JacksonWriter >> with: object do: block [
 JacksonWriter >> writeAssociation: association [
 
 	self encodeKey: association key value: association value
+]
+
+{ #category : 'writing' }
+JacksonWriter >> writeBlock: aBlock [
+	
+	"TODO"
+	self nextPut: nil
 ]
 
 { #category : 'writing' }
@@ -194,6 +176,15 @@ JacksonWriter >> writeNull [
 ]
 
 { #category : 'writing' }
+JacksonWriter >> writeObject: anObject [
+
+    self writeObject: anObject streamMap: [ :map |
+        anObject class allInstVarNames do: [ :each |
+            (anObject instVarNamed: each) ifNotNil: [ :value |
+                map at: each asSymbol put: value ] ] ]
+]
+
+{ #category : 'writing' }
 JacksonWriter >> writeObject: anObject do: block [
 
 	self with: anObject do: [ block value ]
@@ -203,15 +194,17 @@ JacksonWriter >> writeObject: anObject do: block [
 JacksonWriter >> writeObject: object streamMap: block [
 
 	self writeObject: object do: [
-		| mapWriter |
+		| mapWriter id position |
 		mapWriter := STONMapWriter on: self.
 		writeStream nextPut: ${.
 		self writeAssociation: '@type' -> object className.
 		self mapElementSeparator.
-		self writeAssociation: '@id' -> objects size.
-		self mapElementSeparator.
-		self indentedDo: [
-			block value: mapWriter ].
+		id := objects size.
+		"check if anything was written to avoid trailing comma"
+		position := writeStream position.
+		self indentedDo: [ block value: mapWriter ].
+		position = writeStream position ifFalse: [ self mapElementSeparator ].
+		self writeAssociation: '@id' -> id.
 		writeStream nextPut: $} ]
 ]
 
