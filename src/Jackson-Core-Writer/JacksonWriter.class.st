@@ -186,8 +186,9 @@ JacksonWriter >> writeObject: anObject [
 
 { #category : 'writing' }
 JacksonWriter >> writeObject: anObject do: block [
+	"No checks, everything can be serialized."
 
-	self with: anObject do: [ block value ]
+	self with: anObject do: block
 ]
 
 { #category : 'writing' }
