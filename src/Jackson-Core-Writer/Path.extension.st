@@ -1,6 +1,6 @@
-Extension { #name : #Path }
+Extension { #name : 'Path' }
 
-{ #category : #'*Jackson-Core-Writer' }
+{ #category : '*Jackson-Core-Writer' }
 Path >> jacksonOn: jacksonWriter [
 
 	jacksonWriter writeString: self fullName

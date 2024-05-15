@@ -1,6 +1,6 @@
-Extension { #name : #ByteArray }
+Extension { #name : 'ByteArray' }
 
-{ #category : #'*Jackson-Core-Writer' }
+{ #category : '*Jackson-Core-Writer' }
 ByteArray >> jacksonOn: jacksonWriter [
 	"Use a hex representation"
 

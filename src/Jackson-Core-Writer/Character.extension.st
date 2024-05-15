@@ -1,6 +1,6 @@
-Extension { #name : #Character }
+Extension { #name : 'Character' }
 
-{ #category : #'*Jackson-Core-Writer' }
+{ #category : '*Jackson-Core-Writer' }
 Character >> jacksonOn: jacksonWriter [
 	jacksonWriter writeCharacter: self
 ]

@@ -1,1 +1,1 @@
-Package { #name : #'Jackson-Core-Writer' }
+Package { #name : 'Jackson-Core-Writer' }

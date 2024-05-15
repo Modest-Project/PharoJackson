@@ -1,10 +1,11 @@
 Class {
-	#name : #JacksonWriter,
-	#superclass : #STONWriter,
-	#category : #'Jackson-Core-Writer'
+	#name : 'JacksonWriter',
+	#superclass : 'STONWriter',
+	#category : 'Jackson-Core-Writer',
+	#package : 'Jackson-Core-Writer'
 }
 
-{ #category : #private }
+{ #category : 'private' }
 JacksonWriter class >> serialize: anObject [
 
 	^ String streamContents: [ :stream |
@@ -13,7 +14,7 @@ JacksonWriter class >> serialize: anObject [
 			  nextPut: anObject ]
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> encodeCollection: collection [
 
 	writeStream nextPut: ${.
@@ -27,7 +28,7 @@ JacksonWriter >> encodeCollection: collection [
 	writeStream nextPut: $}
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 JacksonWriter >> encodeKey: key value: value [
 	"For Json key/value like @type or fields"
 
@@ -36,7 +37,7 @@ JacksonWriter >> encodeKey: key value: value [
 	self nextPut: value
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> encodeList: elements [
 
 	writeStream nextPut: $[.
@@ -51,7 +52,7 @@ JacksonWriter >> encodeList: elements [
 	writeStream nextPut: $]
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> encodeMap: pairs [
 
 	| first |
@@ -76,7 +77,7 @@ JacksonWriter >> encodeMap: pairs [
 	writeStream nextPut: $}
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 JacksonWriter >> encodeMapKey: key value: value [
 	"For Dictionary key/value"
 	
@@ -87,7 +88,7 @@ JacksonWriter >> encodeMapKey: key value: value [
 	writeStream nextPut: $]
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 JacksonWriter >> encodeString: string [
 	writeStream nextPut: $".
 	keepNewLines
@@ -98,20 +99,20 @@ JacksonWriter >> encodeString: string [
 	writeStream nextPut: $"
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 JacksonWriter >> initialize [
 
 	super initialize.
-	jsonMode := true
+	self jsonMode: true
 ]
 
-{ #category : #public }
+{ #category : 'public' }
 JacksonWriter >> nextPut: anObject [
 
 	anObject jacksonOn: self
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 JacksonWriter >> with: object do: block [
 
 	| index |
@@ -127,13 +128,13 @@ JacksonWriter >> with: object do: block [
 			block value ]
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> writeAssociation: association [
 
 	self encodeKey: association key value: association value
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> writeCharacter: character [
 
 	writeStream nextPut: ${.
@@ -145,7 +146,7 @@ JacksonWriter >> writeCharacter: character [
 	writeStream nextPut: $}
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> writeClass: aClass [
 
 	writeStream nextPut: ${.
@@ -155,13 +156,13 @@ JacksonWriter >> writeClass: aClass [
 	writeStream nextPut: $}
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> writeCollection: collection [
 
 	self with: collection do: [ self encodeCollection: collection ]
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> writeFloat: float [
 
 	float isFinite
@@ -177,7 +178,7 @@ JacksonWriter >> writeFloat: float [
 			self writeString: argument ]
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> writeFraction: fraction [
 
 	writeStream
@@ -186,19 +187,19 @@ JacksonWriter >> writeFraction: fraction [
 		print: fraction denominator
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> writeNull [
 
 	writeStream nextPutAll: 'null'
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> writeObject: anObject do: block [
 
 	self with: anObject do: [ block value ]
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> writeObject: object streamMap: block [
 
 	self writeObject: object do: [
@@ -214,7 +215,7 @@ JacksonWriter >> writeObject: object streamMap: block [
 		writeStream nextPut: $} ]
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> writeReference: index [
 
 	writeStream
@@ -223,7 +224,7 @@ JacksonWriter >> writeReference: index [
 		nextPut: $}
 ]
 
-{ #category : #writing }
+{ #category : 'writing' }
 JacksonWriter >> writeScaledDecimal: scaledDecimal [
 
 	writeStream

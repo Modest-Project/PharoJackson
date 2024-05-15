@@ -1,6 +1,6 @@
-Extension { #name : #Bitmap }
+Extension { #name : 'Bitmap' }
 
-{ #category : #'*Jackson-Core-Writer' }
+{ #category : '*Jackson-Core-Writer' }
 Bitmap >> jacksonOn: jacksonWriter [
 
 	jacksonWriter nextPut: self asByteArray
