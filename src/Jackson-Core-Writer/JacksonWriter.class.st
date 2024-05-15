@@ -110,13 +110,6 @@ JacksonWriter >> writeAssociation: association [
 ]
 
 { #category : 'writing' }
-JacksonWriter >> writeBlock: aBlock [
-	
-	"TODO"
-	self nextPut: nil
-]
-
-{ #category : 'writing' }
 JacksonWriter >> writeCharacter: character [
 
 	writeStream nextPut: ${.
@@ -142,6 +135,39 @@ JacksonWriter >> writeClass: aClass [
 JacksonWriter >> writeCollection: collection [
 
 	self with: collection do: [ self encodeCollection: collection ]
+]
+
+{ #category : 'writing' }
+JacksonWriter >> writeCompiledBlock: aCompiledBlock [
+
+	self writeObject: aCompiledBlock streamMap: [ :map |
+		map at: 'source' put: aCompiledBlock sourceNode sourceCode.
+
+		"serialize bound variables"
+		(aCompiledBlock literalsEvenTheOnesInTheInnerBlocks select: [
+			 :literal |
+			 literal isVariableBinding and: [ literal isGlobalVariable not ] ])
+			ifNotEmpty: [ :literals |
+				self mapElementSeparator.
+				self writeCompiledBlockLiterals: literals ] ]
+]
+
+{ #category : 'writing' }
+JacksonWriter >> writeCompiledBlockLiterals: literals [
+
+	| first |
+	writeStream nextPutAll: '"literals":'.
+	writeStream nextPut: ${.
+	first := true.
+	literals do: [ :literal |
+		first
+			ifTrue: [ first := false ]
+			ifFalse: [ self mapElementSeparator ].
+		writeStream nextPut: $".
+		writeStream nextPutAll: literal name asString.
+		writeStream nextPutAll: '":'.
+		self nextPut: literal value ].
+	writeStream nextPut: $}
 ]
 
 { #category : 'writing' }
