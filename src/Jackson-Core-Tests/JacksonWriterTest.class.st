@@ -1,21 +1,24 @@
 Class {
-	#name : #JacksonWriterTest,
-	#superclass : #STONWriterTest,
+	#name : 'JacksonWriterTest',
+	#superclass : 'STONWriterTest',
 	#instVars : [
 		'writer'
 	],
-	#category : #'Jackson-Core-Tests'
+	#category : 'Jackson-Core-Tests',
+	#package : 'Jackson-Core-Tests'
 }
 
-{ #category : #private }
+{ #category : 'private' }
 JacksonWriterTest >> serialize: anObject [
+
 	^ String streamContents: [ :stream |
-		writer
-			on: stream;
-			nextPut: anObject ]
+		  writer
+			  on: stream;
+			  nextPut: anObject;
+			  reset ]
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 JacksonWriterTest >> serializeAsciiOnly: anObject [
 	^ String streamContents: [ :stream |
 		JacksonWriter new
@@ -24,7 +27,7 @@ JacksonWriterTest >> serializeAsciiOnly: anObject [
 			nextPut: anObject ]
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 JacksonWriterTest >> serializeJson: anObject [
 	^ String streamContents: [ :stream |
 		JacksonWriter new
@@ -32,7 +35,7 @@ JacksonWriterTest >> serializeJson: anObject [
 			nextPut: anObject ]
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 JacksonWriterTest >> serializePretty: anObject [
 	^ String streamContents: [ :stream |
 		JacksonWriter new
@@ -41,15 +44,14 @@ JacksonWriterTest >> serializePretty: anObject [
 			nextPut: anObject ]
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 JacksonWriterTest >> setUp [
-	super setUp.
 
-	"Put here a common initialization logic for tests"
+	super setUp.
 	writer := JacksonWriter new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testArray [
 
 	| array array2 |
@@ -61,16 +63,16 @@ JacksonWriterTest >> testArray [
 		          at: 1 put: 1;
 		          yourself.
 	self assert: (self serialize: array) equals: '[1,1,null,3,null,null]'. "the first element is the id"
-	self assert: (self serialize: Array new) equals: '[2]'.
+	self assert: (self serialize: Array new) equals: '[1]'.
 	self
 		assert: (self serialize: (Dictionary new
 					  at: 1 put: array2;
 					  yourself))
 		equals:
-		'{"@type":"Dictionary","tally":1,"array":[4,{"@type":"Association","key":1,"value":[6,1,null],"@id":5},null,null,null,null],"@id":3}'
+		'{"@type":"Dictionary","tally":1,"array":[2,{"@type":"Association","key":1,"value":[4,1,null],"@id":3},null,null,null,null],"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testArrayWhenReference [
 	| array |
 	array := (Array new: 5)
@@ -81,7 +83,7 @@ JacksonWriterTest >> testArrayWhenReference [
 	self assert: (self serialize: array) equals: '[1,1,null,3,null,{"@ref":1}]'.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testAssociation [
 
 	self
@@ -90,17 +92,17 @@ JacksonWriterTest >> testAssociation [
 	self
 		assert: (self serialize: 'foo bar' -> #ok)
 		equals:
-		'{"@type":"Association","key":"foo bar","value":"ok","@id":2}'.
+		'{"@type":"Association","key":"foo bar","value":"ok","@id":1}'.
 	self
 		assert: (self serialize: 123 -> 456)
-		equals: '{"@type":"Association","key":123,"value":456,"@id":3}'.
+		equals: '{"@type":"Association","key":123,"value":456,"@id":1}'.
 	self
 		assert: (self serialize: OrderedCollection new -> 1)
 		equals:
-		'{"@type":"Association","key":{"@type":"OrderedCollection","@id":5,"array":[6]},"value":1,"@id":4}'
+		'{"@type":"Association","key":{"@type":"OrderedCollection","@id":2,"array":[3]},"value":1,"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testBag [
 
 	self
@@ -110,10 +112,10 @@ JacksonWriterTest >> testBag [
 	self
 		assert: (self serialize: Bag new)
 		equals:
-		'{"@type":"Bag","contents":{"@type":"Dictionary","tally":0,"array":[7,null,null,null,null,null,null,null],"@id":6},"@id":5}'
+		'{"@type":"Bag","contents":{"@type":"Dictionary","tally":0,"array":[3,null,null,null,null,null,null,null],"@id":2},"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testBlock [
 
 	| block c |
@@ -125,12 +127,12 @@ JacksonWriterTest >> testBlock [
 		'{"@type":"FullBlockClosure","compiledBlock":{"@type":"CompiledBlock","source":"[ :a :b | a + b * c ]","@id":2},"numArgs":2,"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testByteArray [
 	self assert: (self serialize: #(1 2 15) asByteArray) equals: '"01020f"'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testCharacter [
 
 	self
@@ -138,7 +140,7 @@ JacksonWriterTest >> testCharacter [
 		equals: '{"@type":"Character","value":97}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testClass [
 
 	self
@@ -146,7 +148,7 @@ JacksonWriterTest >> testClass [
 		equals: '{"@type":"Class","name":"Point"}' "TO DO"
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testClassWithNoInstVars [
 
 	self
@@ -154,7 +156,7 @@ JacksonWriterTest >> testClassWithNoInstVars [
 		equals: '{"@type":"MockClassWithNoInstVars","@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testColor [
 
 	| red |
@@ -164,16 +166,23 @@ JacksonWriterTest >> testColor [
 			 (red includesSubstring: '"alpha":255,"@id":1'))
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testDate [
+
 	| date |
 	date := (Date year: 2012 month: 1 day: 1) translateToUTC.
-	self assert: (self serialize: date) equals: '{"@type":"Date","start":{"@type":"DateAndTime","seconds":0,"offset":{"@type":"Duration","nanos":0,"seconds":0,"@id":3},"julianDayNumber":2455928,"nanos":0,"@id":2},"duration":{"@type":"Duration","nanos":0,"seconds":86400,"@id":4},"@id":1}'.
+	self
+		assert: (self serialize: date)
+		equals:
+		'{"@type":"Date","start":{"@type":"DateAndTime","seconds":0,"offset":{"@type":"Duration","nanos":0,"seconds":0,"@id":3},"julianDayNumber":2455928,"nanos":0,"@id":2},"duration":{"@type":"Duration","nanos":0,"seconds":86400,"@id":4},"@id":1}'.
 	date := (Date year: 2012 month: 1 day: 1) translateTo: 1 hour.
-	self assert: (self serialize: date) equals: '{"@type":"Date","start":{"@type":"DateAndTime","seconds":82800,"offset":{"@type":"Duration","nanos":0,"seconds":3600,"@id":7},"julianDayNumber":2455927,"nanos":0,"@id":6},"duration":{"@type":"Duration","nanos":0,"seconds":86400,"@id":8},"@id":5}'
+	self
+		assert: (self serialize: date)
+		equals:
+		'{"@type":"Date","start":{"@type":"DateAndTime","seconds":82800,"offset":{"@type":"Duration","nanos":0,"seconds":3600,"@id":3},"julianDayNumber":2455927,"nanos":0,"@id":2},"duration":{"@type":"Duration","nanos":0,"seconds":86400,"@id":4},"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testDateAndTime [
 
 	| dateAndTime |
@@ -191,7 +200,7 @@ JacksonWriterTest >> testDateAndTime [
 		'{"@type":"DateAndTime","seconds":19815,"offset":{"@type":"Duration","nanos":0,"seconds":3600,"@id":2},"julianDayNumber":2455928,"nanos":0,"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testDictionary [
 
 	| collection |
@@ -205,10 +214,10 @@ JacksonWriterTest >> testDictionary [
 	self
 		assert: (self serialize: STON mapClass new)
 		equals:
-		'{"@type":"Dictionary","tally":0,"array":[5,null,null,null,null,null],"@id":4}'
+		'{"@type":"Dictionary","tally":0,"array":[2,null,null,null,null,null],"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testDictionaryWithComplexKeys [
 	| collection |
 	collection := STON mapClass new at: true put: 1; at: #(foo) put: 2; yourself.
@@ -216,7 +225,7 @@ JacksonWriterTest >> testDictionaryWithComplexKeys [
 	self assert: (self serialize: collection) equals: '{"@type":"Dictionary","tally":2,"array":[2,{"@type":"Association","key":[4,"foo"],"value":2,"@id":3},null,null,null,{"@type":"Association","key":true,"value":1,"@id":5}],"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testDiskFile [
 
 	self
@@ -226,22 +235,22 @@ JacksonWriterTest >> testDiskFile [
 	self
 		assert: (self serialize: '/tmp/foo.txt' asFileReference)
 		equals:
-		'{"@type":"FileReference","path":"/tmp/foo.txt","filesystem":{"@ref":2},"@id":4}'.
+		'{"@type":"FileReference","path":"/tmp/foo.txt","filesystem":{"@type":"FileSystem","store":{"@type":"MacStore","maxFileNameLength":255,"@id":3},"@id":2},"@id":1}'.
 	self
 		assert: (self serialize: 'tmp/foo.txt' asFileReference)
 		equals:
-		'{"@type":"FileReference","path":"tmp/foo.txt","filesystem":{"@ref":2},"@id":5}'.
+		'{"@type":"FileReference","path":"tmp/foo.txt","filesystem":{"@type":"FileSystem","store":{"@type":"MacStore","maxFileNameLength":255,"@id":3},"@id":2},"@id":1}'.
 	self
 		assert: (self serialize: '/tmp' asFileReference)
 		equals:
-		'{"@type":"FileReference","path":"/tmp","filesystem":{"@ref":2},"@id":6}'.
+		'{"@type":"FileReference","path":"/tmp","filesystem":{"@type":"FileSystem","store":{"@type":"MacStore","maxFileNameLength":255,"@id":3},"@id":2},"@id":1}'.
 	self
 		assert: (self serialize: '/tmp/' asFileReference)
 		equals:
-		'{"@type":"FileReference","path":"/tmp","filesystem":{"@ref":2},"@id":7}'
+		'{"@type":"FileReference","path":"/tmp","filesystem":{"@type":"FileSystem","store":{"@type":"MacStore","maxFileNameLength":255,"@id":3},"@id":2},"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testFloat [
 	self assert: (self serialize: 1.5) equals: '1.5'.
 	self assert: (self serialize: 0.0) equals: '0.0'.
@@ -256,7 +265,7 @@ JacksonWriterTest >> testFloat [
 	self assert: (self serialize: Float negativeInfinity) equals: '"negativeInfinity"'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testId [
 
 	| user |
@@ -273,10 +282,10 @@ JacksonWriterTest >> testId [
 	self
 		assert: (self serialize: user)
 		equals:
-		'{"@type":"STONTestUser","username":"john2@foo.com","password":"secret2","enabled":true,"@id":2}'
+		'{"@type":"STONTestUser","username":"john2@foo.com","password":"secret2","enabled":true,"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testIdWhenNestedReference [
 
 	| user array |
@@ -294,10 +303,11 @@ JacksonWriterTest >> testIdWhenNestedReference [
 	array at: 3 put: array.
 	self
 		assert: (self serialize: array)
-		equals: '[2,{"@ref":1},null,{"@ref":2},{"@ref":1},null]'
+		equals:
+		'[1,{"@type":"STONTestUser","username":"john@foo.com","password":"secret1","enabled":true,"@id":2},null,{"@ref":1},{"@ref":2},null]'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testIdWhenReference [
 
 	| user |
@@ -305,16 +315,14 @@ JacksonWriterTest >> testIdWhenReference [
 		username: 'john@foo.com';
 		password: 'secret1'.
 	self
-		assert: (self serialize: user)
+		assert: (self serialize: {
+					 user.
+					 user })
 		equals:
-		'{"@type":"STONTestUser","username":"john@foo.com","password":"secret1","enabled":true,"@id":1}'.
-	self
-		assert: (self serialize: user)
-		equals:
-		'{"@ref":1}'
+		'[1,{"@type":"STONTestUser","username":"john@foo.com","password":"secret1","enabled":true,"@id":2},{"@ref":2}]'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testIdentityDictionary [
 
 	| collection |
@@ -329,42 +337,54 @@ JacksonWriterTest >> testIdentityDictionary [
 	self
 		assert: (self serialize: IdentityDictionary new)
 		equals:
-		'{"@type":"IdentityDictionary","tally":0,"array":[6,null,null,null,null,null],"@id":5}'
+		'{"@type":"IdentityDictionary","tally":0,"array":[2,null,null,null,null,null],"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testList [
-	self assert: (self serialize: (STON listClass withAll: #(1 2 3))) equals: '[1,1,2,3]'.
-	self assert: (self serialize: STON listClass new) equals: '[2]'.
-	self assert: (self serialize: (STON listClass withAll: {1 . -1 . 0 . #foo . 'a b c' . true . false . nil})) equals: '[3,1,-1,0,"foo","a b c",true,false,null]'
+
+	self
+		assert: (self serialize: (STON listClass withAll: #( 1 2 3 )))
+		equals: '[1,1,2,3]'.
+	self assert: (self serialize: STON listClass new) equals: '[1]'.
+	self
+		assert: (self serialize:
+				 (STON listClass withAll:
+					  { 1. -1. 0. #foo. 'a b c'. true. false. nil }))
+		equals: '[1,1,-1,0,"foo","a b c",true,false,null]'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testMap [
 
-	| map map2 |
+	| map |
 	(map := STON mapClass new)
 		at: #foo put: 1;
 		at: #bar put: 2;
 		at: 5 put: 0.
-	map2 := STON mapClass new.
 	self
 		assert: (self serialize: map)
 		equals:
 		'{"@type":"Dictionary","tally":3,"array":[2,{"@type":"Association","key":5,"value":0,"@id":3},null,{"@type":"Association","key":"foo","value":1,"@id":4},{"@type":"Association","key":"bar","value":2,"@id":5},null],"@id":1}'.
-	self
-		assert: (self serialize: map2)
-		equals:
-		'{"@type":"Dictionary","tally":0,"array":[7,null,null,null,null,null],"@id":6}'.
 	map removeAll.
+	self
+		assert: (self serialize: map)
+		equals:
+		'{"@type":"Dictionary","tally":0,"array":[2,null,null,null,null,null],"@id":1}'.
 	map at: 'foo bar' put: #ok.
-	self assert: (self serialize: map) equals: '{"@ref":1}'.
+	self
+		assert: (self serialize: map)
+		equals:
+		'{"@type":"Dictionary","tally":1,"array":[2,null,null,{"@type":"Association","key":"foo bar","value":"ok","@id":3},null,null],"@id":1}'.
 	map removeAll.
 	map at: 123 put: 456.
-	self assert: (self serialize: map2) equals: '{"@ref":6}'
+	self
+		assert: (self serialize: map)
+		equals:
+		'{"@type":"Dictionary","tally":1,"array":[2,{"@type":"Association","key":123,"value":456,"@id":3},null,null,null,null],"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testMimeType [
 
 	self
@@ -374,15 +394,15 @@ JacksonWriterTest >> testMimeType [
 	self
 		assert: (self serialize: ZnMimeType textPlain)
 		equals:
-		'{"@type":"ZnMimeType","main":"text","sub":"plain","parameters":{"@type":"SmallDictionary","keys":[4,"charset",null],"values":[5,"utf-8",null],"size":1,"@id":3},"@id":2}'
+		'{"@type":"ZnMimeType","main":"text","sub":"plain","parameters":{"@type":"SmallDictionary","keys":[3,"charset",null],"values":[4,"utf-8",null],"size":1,"@id":2},"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testNil [
 	self assert: (self serialize: nil) equals: 'null'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testOrderedCollection [
 
 	| collection |
@@ -397,10 +417,10 @@ JacksonWriterTest >> testOrderedCollection [
 		'{"@type":"OrderedCollection","@id":1,"array":[2,1,2,3,null]}'.
 	self
 		assert: (self serialize: OrderedCollection new)
-		equals: '{"@type":"OrderedCollection","@id":3,"array":[4]}'
+		equals: '{"@type":"OrderedCollection","@id":1,"array":[2]}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testPoint [
 
 	self
@@ -408,7 +428,7 @@ JacksonWriterTest >> testPoint [
 		equals: '{"@type":"Point","x":1,"y":2,"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testReferenceCycle [
 	| array |
 	array := STON listClass with: 1 with: nil.
@@ -416,7 +436,7 @@ JacksonWriterTest >> testReferenceCycle [
 	self assert: (self serialize: array) equals: '[1,1,{"@ref":1}]'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testReferenceSharing [
 	| array one |
 	one := {#one}.
@@ -424,7 +444,7 @@ JacksonWriterTest >> testReferenceSharing [
 	self assert: (self serialize: array) equals: '[1,[2,"one"],{"@ref":2},{"@ref":2}]'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testScaledDecimal [
 	self assert: (self serialize: 1/3s2) equals: '1/3s2'.
 	self assert: (self serialize: -1/3s2) equals: '-1/3s2'.
@@ -432,7 +452,7 @@ JacksonWriterTest >> testScaledDecimal [
 	self assert: (self serialize: -1/3s10) equals: '-1/3s10'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testSet [
 
 	| collection |
@@ -443,14 +463,13 @@ JacksonWriterTest >> testSet [
 		              with: nil.
 	self
 		assert: (self serialize: collection)
-		equals:
-		'{"@type":"Set","@id":1,"array":[2,1,2,3,null]}'.
+		equals: '{"@type":"Set","@id":1,"array":[2,1,2,3,null]}'.
 	self
 		assert: (self serialize: Set new)
-		equals: '{"@type":"Set","@id":3,"array":[4]}'
+		equals: '{"@type":"Set","@id":1,"array":[2]}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testString [
 
 	| string |
@@ -475,7 +494,7 @@ JacksonWriterTest >> testString [
 	self assert: (self serialize: string) equals: '"\"''\\/\t\r\n\f\b"'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testSymbol [
 	self assert: (self serialize: #foo) equals: '"foo"'.
 	self assert: (self serialize: #FOO) equals: '"FOO"'.
@@ -488,7 +507,7 @@ JacksonWriterTest >> testSymbol [
 	self assert: (self serialize: #foo123) equals: '"foo123"'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testTime [
 
 	| time |
@@ -503,10 +522,10 @@ JacksonWriterTest >> testTime [
 		        nanoSecond: 123.
 	self
 		assert: (self serialize: time)
-		equals: '{"@type":"Time","seconds":23415,"nanos":123,"@id":2}'
+		equals: '{"@type":"Time","seconds":23415,"nanos":123,"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testURL [
 
 	self
@@ -516,20 +535,20 @@ JacksonWriterTest >> testURL [
 	self
 		assert: (self serialize: 'mailto:sven@stfx.eu' asUrl)
 		equals:
-		'{"@type":"ZnUrl","scheme":"mailto","host":"stfx.eu","username":"sven","@id":4}'.
+		'{"@type":"ZnUrl","scheme":"mailto","host":"stfx.eu","username":"sven","@id":1}'.
 	self
 		assert: (self serialize: 'file:///var/log/system.log' asUrl)
 		equals:
-		'{"@type":"ZnUrl","scheme":"file","segments":{"@type":"OrderedCollection","@id":6,"array":[7,"var","log","system.log"]},"@id":5}'.
+		'{"@type":"ZnUrl","scheme":"file","segments":{"@type":"OrderedCollection","@id":2,"array":[3,"var","log","system.log"]},"@id":1}'.
 	self
 		assert: (self serialize:
 				 'scheme://user:password@host:123/var/log/system.log?foo=1&bar#frag'
 					 asUrl)
 		equals:
-		'{"@type":"ZnUrl","scheme":"scheme","host":"host","port":123,"segments":{"@type":"OrderedCollection","@id":9,"array":[10,"var","log","system.log"]},"query":{"@type":"ZnMultiValueDictionary","dictionary":{"@type":"Dictionary","tally":2,"array":[13,null,null,{"@type":"Association","key":"bar","@id":14},null,null,null,null,null,null,null,null,null,null,null,null,null,{"@type":"Association","key":"foo","value":"1","@id":15}],"@id":12},"orderedKeys":[16,"foo","bar",null,null,null,null,null,null,null,null],"limit":256,"@id":11},"fragment":"frag","username":"user","password":"password","@id":8}'
+		'{"@type":"ZnUrl","scheme":"scheme","host":"host","port":123,"segments":{"@type":"OrderedCollection","@id":2,"array":[3,"var","log","system.log"]},"query":{"@type":"ZnMultiValueDictionary","dictionary":{"@type":"Dictionary","tally":2,"array":[6,null,null,{"@type":"Association","key":"bar","@id":7},null,null,null,null,null,null,null,null,null,null,null,null,null,{"@type":"Association","key":"foo","value":"1","@id":8}],"@id":5},"orderedKeys":[9,"foo","bar",null,null,null,null,null,null,null,null],"limit":256,"@id":4},"fragment":"frag","username":"user","password":"password","@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testUser [
 
 	| user |
@@ -542,7 +561,7 @@ JacksonWriterTest >> testUser [
 		'{"@type":"STONTestUser","username":"john@foo.com","password":"secret1","enabled":true,"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testUser2 [
 
 	| user |
@@ -555,7 +574,7 @@ JacksonWriterTest >> testUser2 [
 		'{"@type":"STONTestUser2","username":"john@foo.com","password":"secret1","enabled":true,"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testUser3Nil [
 
 	| user |
@@ -565,7 +584,7 @@ JacksonWriterTest >> testUser3Nil [
 		equals: '{"@type":"STONTestUser3","enabled":true,"@id":1}'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 JacksonWriterTest >> testUserNil [
 
 	| user |
