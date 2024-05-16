@@ -118,13 +118,32 @@ JacksonWriterTest >> testBag [
 { #category : 'tests' }
 JacksonWriterTest >> testBlock [
 
-	| block c |
-	c := 10.
-	block := [ :a :b | a + b * c ].
+	| c |
 	self
-		assert: (self serialize: block)
+		assert: (self serialize: [  ])
 		equals:
-		'{"@type":"FullBlockClosure","compiledBlock":{"@type":"CompiledBlock","source":"[ :a :b | a + b * c ]","@id":2},"numArgs":2,"@id":1}'
+		'{"@type":"ConstantBlockClosure","compiledBlock":{"@type":"CompiledBlock","source":"[  ]","@id":2},"numArgs":0,"@id":1}'.
+
+	self
+		assert: (self serialize: [ "foo" 'bar' ])
+		equals:
+		'{"@type":"ConstantBlockClosure","compiledBlock":{"@type":"CompiledBlock","source":"[ \"foo\" ''bar'' ]","@id":2},"numArgs":0,"@id":1}'.
+
+	self
+		assert: (self serialize: [ :i | [ i ] ])
+		equals:
+		'{"@type":"FullBlockClosure","compiledBlock":{"@type":"CompiledBlock","source":"[ :i | [ i ] ]","@id":2},"numArgs":1,"@id":1}'.
+
+	c := 10.
+	self
+		assert: (self serialize: [ :a :b | a + b - c ])
+		equals:
+		'{"@type":"FullBlockClosure","compiledBlock":{"@type":"CompiledBlock","source":"[ :a :b | a + b - c ]","@id":2},"numArgs":2,"vars":{"c":10},"@id":1}'.
+
+	self
+		assert: (self serialize: [ :a :b | [ a + b - c ] ])
+		equals:
+		'{"@type":"FullBlockClosure","compiledBlock":{"@type":"CompiledBlock","source":"[ :a :b | [ a + b - c ] ]","@id":2},"numArgs":2,"vars":{"c":10},"@id":1}'
 ]
 
 { #category : 'tests' }

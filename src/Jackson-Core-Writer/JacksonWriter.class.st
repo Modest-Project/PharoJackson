@@ -143,31 +143,18 @@ JacksonWriter >> writeCompiledBlock: aCompiledBlock [
 	self writeObject: aCompiledBlock streamMap: [ :map |
 		map at: 'source' put: aCompiledBlock sourceNode sourceCode.
 
-		"serialize bound variables"
+		"serialize bound LiteralVariables"
 		(aCompiledBlock literalsEvenTheOnesInTheInnerBlocks select: [
-			 :literal |
-			 literal isVariableBinding and: [ literal isGlobalVariable not ] ])
-			ifNotEmpty: [ :literals |
-				self mapElementSeparator.
-				self writeCompiledBlockLiterals: literals ] ]
-]
-
-{ #category : 'writing' }
-JacksonWriter >> writeCompiledBlockLiterals: literals [
-
-	| first |
-	writeStream nextPutAll: '"literals":'.
-	writeStream nextPut: ${.
-	first := true.
-	literals do: [ :literal |
-		first
-			ifTrue: [ first := false ]
-			ifFalse: [ self mapElementSeparator ].
-		writeStream nextPut: $".
-		writeStream nextPutAll: literal name asString.
-		writeStream nextPutAll: '":'.
-		self nextPut: literal value ].
-	writeStream nextPut: $}
+			 :literal | literal isVariableBinding ]) ifNotEmpty: [ :literals |
+			writeStream nextPutAll: ',"literals":{'.
+			literals
+				do: [ :literal |
+					writeStream nextPut: $".
+					writeStream nextPutAll: literal name.
+					writeStream nextPutAll: '":'.
+					self nextPut: literal value ]
+				separatedBy: [ writeStream nextPut: $, ].
+			writeStream nextPut: $} ] ]
 ]
 
 { #category : 'writing' }
@@ -193,6 +180,44 @@ JacksonWriter >> writeFraction: fraction [
 		print: fraction numerator;
 		nextPut: $/;
 		print: fraction denominator
+]
+
+{ #category : 'writing' }
+JacksonWriter >> writeFullBlockClosure: aFullBlockClosure [
+	"Serialize bound variables and ignore outerContext."
+
+	self writeObject: aFullBlockClosure streamMap: [ :map |
+		map at: 'compiledBlock' put: aFullBlockClosure compiledBlock.
+		map at: 'numArgs' put: aFullBlockClosure numArgs.
+
+		"serialize receiver if it is read"
+		aFullBlockClosure receiver ifNotNil: [ :receiver |
+			aFullBlockClosure compiledBlock readsSelf ifTrue: [
+				map at: 'receiver' put: receiver ] ].
+
+		self writeFullBlockClosureVars: aFullBlockClosure ]
+]
+
+{ #category : 'writing' }
+JacksonWriter >> writeFullBlockClosureVars: aFullBlockClosure [
+	"serialize variables, ignore (inner) block arguments and temporaries"
+
+	| context vars |
+	context := aFullBlockClosure outerContext.
+	vars := OrderedCollection new.
+	aFullBlockClosure sourceNode scope copiedVars do: [ :var |
+		(context lookupVar: var name) ifNotNil: [ :ctxVar |
+			vars addLast: ctxVar ] ].
+	vars ifNotEmpty: [
+		writeStream nextPutAll: ',"vars":{'.
+		vars
+			do: [ :var |
+				writeStream nextPut: $".
+				writeStream nextPutAll: var name.
+				writeStream nextPutAll: '":'.
+				self nextPut: (var readInContext: context) ]
+			separatedBy: [ writeStream nextPut: $, ].
+		writeStream nextPut: $} ]
 ]
 
 { #category : 'writing' }
