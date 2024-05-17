@@ -257,24 +257,19 @@ JacksonWriterTest >> testDiskFile [
 
 	self
 		assert: (self serialize: '/test/foo.txt' asFileReference)
-		equals:
-		'{"@type":"FileReference","path":"/test/foo.txt","filesystem":{"@type":"FileSystem","store":{"@type":"MacStore","maxFileNameLength":255,"@id":3},"@id":2},"@id":1}'.
+		equals: '{"@type":"FileReference","path":"/test/foo.txt","@id":1}'.
 	self
 		assert: (self serialize: '/tmp/foo.txt' asFileReference)
-		equals:
-		'{"@type":"FileReference","path":"/tmp/foo.txt","filesystem":{"@type":"FileSystem","store":{"@type":"MacStore","maxFileNameLength":255,"@id":3},"@id":2},"@id":1}'.
+		equals: '{"@type":"FileReference","path":"/tmp/foo.txt","@id":1}'.
 	self
 		assert: (self serialize: 'tmp/foo.txt' asFileReference)
-		equals:
-		'{"@type":"FileReference","path":"tmp/foo.txt","filesystem":{"@type":"FileSystem","store":{"@type":"MacStore","maxFileNameLength":255,"@id":3},"@id":2},"@id":1}'.
+		equals: '{"@type":"FileReference","path":"tmp/foo.txt","@id":1}'.
 	self
 		assert: (self serialize: '/tmp' asFileReference)
-		equals:
-		'{"@type":"FileReference","path":"/tmp","filesystem":{"@type":"FileSystem","store":{"@type":"MacStore","maxFileNameLength":255,"@id":3},"@id":2},"@id":1}'.
+		equals: '{"@type":"FileReference","path":"/tmp","@id":1}'.
 	self
 		assert: (self serialize: '/tmp/' asFileReference)
-		equals:
-		'{"@type":"FileReference","path":"/tmp","filesystem":{"@type":"FileSystem","store":{"@type":"MacStore","maxFileNameLength":255,"@id":3},"@id":2},"@id":1}'
+		equals: '{"@type":"FileReference","path":"/tmp","@id":1}'
 ]
 
 { #category : 'tests' }
