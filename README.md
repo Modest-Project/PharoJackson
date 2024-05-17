@@ -5,42 +5,67 @@
 
 # PharoJackson
 
+Serialize anything\* to JSON with this [Jackson](https://github.com/FasterXML/jackson)-inspired library for Pharo.  
+Values representable by JSON literals are written using the default notation, e.g. arrays, strings, numbers, booleans, null.  
+All other objects are represented by dictionaries containing additional metadata:
+- `@type`: the class name of the object
+- `@id`: the unique identifier assigned to the object, used to handle circular references.
+
+If an object occurs more than once, it is referenced by a dictionary containing a single `@ref` attribute with the id of the object in question.  
+Arrays are also assigned an id, which appears as the first element.
+
+> [!NOTE]
+> \*This library accepts serialization of almost anything, including blocks, but is still limited when it comes to global variables, methods, and meta-values such as `Context`.
+
+## Installing
+
 ```st
 Metacello new
 	baseline: 'JacksonWriter';
   	repository: 'github://Modest-Project/PharoJackson:main/src';
   	load
 ```
+
 ## Examples
+
 ```st
 array := #(1 2).
 JacksonWriter serialize: array
-
-"returns '[1,null,null,null]' with id '1' as first element"
 ```
-
+```json
+[1,1,2]
+```
+---
 ```st
-dictionary := Dictionary newFrom: {1->2. 3->4 }.
-JacksonWriter serialize: JacksonWriter serialize: dictionary
-
-"returns '{"@type":"Dictionary","array":[[1,2],[3,4]],"@id":1}' with an array of key/value array"
+dictionary := Dictionary newFrom: { 1 -> 2. 3 -> 4 }.
+JacksonWriter serialize: dictionary
 ```
+Dictionaries are serialized with an array key-value arrays:
+```json
+{"@type":"Dictionary","array":[[1,2],[3,4]],"@id":1}
+```
+---
 ```st
 orderedCollection := (OrderedCollection new add: 5; add: nil; yourself).
 JacksonWriter serialize: orderedCollection
-
-"returns '{"@type":"OrderedCollection","array":[2,5,null],"@id":1}' with only the added nil and not all nil element of its array"
 ```
+With only the added nil and not all nil element of its array:
+```json
+{"@type":"OrderedCollection","array":[2,5,null],"@id":1}
+```
+---
 ```st
 set := (Set new add: 5; add: nil; yourself).
 JacksonWriter serialize: set
-
-"returns '{"@type":"Set","array":[2,5,null],"@id":1}'  with only the added nil and not all nil element of its array"
 ```
-
+```json
+{"@type":"Set","array":[2,5,null],"@id":1}
+```
+---
 ```st
 character := $a.
 JacksonWriter serialize: character
-
-"returns '{"@type":"Character","value":97}'"
+```
+```json
+{"@type":"Character","value":97}
 ```
