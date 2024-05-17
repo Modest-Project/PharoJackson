@@ -293,6 +293,18 @@ JacksonWriterTest >> testFloat [
 ]
 
 { #category : 'tests' }
+JacksonWriterTest >> testFraction [
+
+	self
+		assert: (self serialize: 1 / 3)
+		equals: '{"@type":"Fraction","numerator":1,"denominator":3,"@id":1}'.
+	self
+		assert: (self serialize: -8 / 5)
+		equals:
+		'{"@type":"Fraction","numerator":-8,"denominator":5,"@id":1}'
+]
+
+{ #category : 'tests' }
 JacksonWriterTest >> testId [
 
 	| user |
@@ -478,10 +490,23 @@ JacksonWriterTest >> testReferenceSharing [
 
 { #category : 'tests' }
 JacksonWriterTest >> testScaledDecimal [
-	self assert: (self serialize: 1/3s2) equals: '1/3s2'.
-	self assert: (self serialize: -1/3s2) equals: '-1/3s2'.
-	self assert: (self serialize: 1/3s10) equals: '1/3s10'.
-	self assert: (self serialize: -1/3s10) equals: '-1/3s10'
+
+	self
+		assert: (self serialize: 1 / 3s2)
+		equals:
+		'{"@type":"ScaledDecimal","numerator":1,"denominator":3,"scale":2,"@id":1}'.
+	self
+		assert: (self serialize: -1 / 3s2)
+		equals:
+		'{"@type":"ScaledDecimal","numerator":-1,"denominator":3,"scale":2,"@id":1}'.
+	self
+		assert: (self serialize: 1 / 3s10)
+		equals:
+		'{"@type":"ScaledDecimal","numerator":1,"denominator":3,"scale":10,"@id":1}'.
+	self
+		assert: (self serialize: -1 / 3s10)
+		equals:
+		'{"@type":"ScaledDecimal","numerator":-1,"denominator":3,"scale":10,"@id":1}'
 ]
 
 { #category : 'tests' }

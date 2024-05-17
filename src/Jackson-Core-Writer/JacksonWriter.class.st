@@ -169,10 +169,7 @@ JacksonWriter >> writeFloat: float [
 { #category : 'writing' }
 JacksonWriter >> writeFraction: fraction [
 
-	writeStream
-		print: fraction numerator;
-		nextPut: $/;
-		print: fraction denominator
+	self shouldNotImplement
 ]
 
 { #category : 'writing' }
@@ -270,12 +267,7 @@ JacksonWriter >> writeReference: index [
 { #category : 'writing' }
 JacksonWriter >> writeScaledDecimal: scaledDecimal [
 
-	writeStream
-		print: scaledDecimal numerator;
-		nextPut: $/;
-		print: scaledDecimal denominator;
-		nextPut: $s;
-		print: scaledDecimal scale
+	self shouldNotImplement
 ]
 
 { #category : 'writing' }
