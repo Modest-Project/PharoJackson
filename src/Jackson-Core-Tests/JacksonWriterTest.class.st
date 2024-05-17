@@ -88,11 +88,12 @@ JacksonWriterTest >> testAssociation [
 
 	self
 		assert: (self serialize: #bar -> 2)
-		equals: '{"@type":"Association","key":"bar","value":2,"@id":1}'.
+		equals:
+		'{"@type":"Association","key":{"@type":"ByteSymbol","value":"bar","@id":2},"value":2,"@id":1}'.
 	self
 		assert: (self serialize: 'foo bar' -> #ok)
 		equals:
-		'{"@type":"Association","key":"foo bar","value":"ok","@id":1}'.
+		'{"@type":"Association","key":"foo bar","value":{"@type":"ByteSymbol","value":"ok","@id":2},"@id":1}'.
 	self
 		assert: (self serialize: 123 -> 456)
 		equals: '{"@type":"Association","key":123,"value":456,"@id":1}'.
@@ -108,7 +109,7 @@ JacksonWriterTest >> testBag [
 	self
 		assert: (self serialize: (Bag withAll: #( a a )))
 		equals:
-		'{"@type":"Bag","contents":{"@type":"Dictionary","tally":1,"array":[3,null,null,{"@type":"Association","key":"a","value":2,"@id":4},null,null],"@id":2},"@id":1}'.
+		'{"@type":"Bag","contents":{"@type":"Dictionary","tally":1,"array":[3,null,null,{"@type":"Association","key":{"@type":"ByteSymbol","value":"a","@id":5},"value":2,"@id":4},null,null],"@id":2},"@id":1}'.
 	self
 		assert: (self serialize: Bag new)
 		equals:
@@ -238,10 +239,17 @@ JacksonWriterTest >> testDictionary [
 
 { #category : 'tests' }
 JacksonWriterTest >> testDictionaryWithComplexKeys [
+
 	| collection |
-	collection := STON mapClass new at: true put: 1; at: #(foo) put: 2; yourself.
-	
-	self assert: (self serialize: collection) equals: '{"@type":"Dictionary","tally":2,"array":[2,{"@type":"Association","key":[4,"foo"],"value":2,"@id":3},null,null,null,{"@type":"Association","key":true,"value":1,"@id":5}],"@id":1}'
+	collection := STON mapClass new
+		              at: true put: 1;
+		              at: #( foo ) put: 2;
+		              yourself.
+
+	self
+		assert: (self serialize: collection)
+		equals:
+		'{"@type":"Dictionary","tally":2,"array":[2,{"@type":"Association","key":[4,{"@type":"ByteSymbol","value":"foo","@id":5}],"value":2,"@id":3},null,null,null,{"@type":"Association","key":true,"value":1,"@id":6}],"@id":1}'
 ]
 
 { #category : 'tests' }
@@ -370,7 +378,8 @@ JacksonWriterTest >> testList [
 		assert: (self serialize:
 				 (STON listClass withAll:
 					  { 1. -1. 0. #foo. 'a b c'. true. false. nil }))
-		equals: '[1,1,-1,0,"foo","a b c",true,false,null]'
+		equals:
+		'[1,1,-1,0,{"@type":"ByteSymbol","value":"foo","@id":2},"a b c",true,false,null]'
 ]
 
 { #category : 'tests' }
@@ -384,7 +393,7 @@ JacksonWriterTest >> testMap [
 	self
 		assert: (self serialize: map)
 		equals:
-		'{"@type":"Dictionary","tally":3,"array":[2,{"@type":"Association","key":5,"value":0,"@id":3},null,{"@type":"Association","key":"foo","value":1,"@id":4},{"@type":"Association","key":"bar","value":2,"@id":5},null],"@id":1}'.
+		'{"@type":"Dictionary","tally":3,"array":[2,{"@type":"Association","key":5,"value":0,"@id":3},null,{"@type":"Association","key":{"@type":"ByteSymbol","value":"foo","@id":5},"value":1,"@id":4},{"@type":"Association","key":{"@type":"ByteSymbol","value":"bar","@id":7},"value":2,"@id":6},null],"@id":1}'.
 	map removeAll.
 	self
 		assert: (self serialize: map)
@@ -394,7 +403,7 @@ JacksonWriterTest >> testMap [
 	self
 		assert: (self serialize: map)
 		equals:
-		'{"@type":"Dictionary","tally":1,"array":[2,null,null,{"@type":"Association","key":"foo bar","value":"ok","@id":3},null,null],"@id":1}'.
+		'{"@type":"Dictionary","tally":1,"array":[2,null,null,{"@type":"Association","key":"foo bar","value":{"@type":"ByteSymbol","value":"ok","@id":4},"@id":3},null,null],"@id":1}'.
 	map removeAll.
 	map at: 123 put: 456.
 	self
@@ -457,10 +466,14 @@ JacksonWriterTest >> testReferenceCycle [
 
 { #category : 'tests' }
 JacksonWriterTest >> testReferenceSharing [
+
 	| array one |
-	one := {#one}.
+	one := { #one }.
 	array := STON listClass with: one with: one with: one.
-	self assert: (self serialize: array) equals: '[1,[2,"one"],{"@ref":2},{"@ref":2}]'
+	self
+		assert: (self serialize: array)
+		equals:
+		'[1,[2,{"@type":"ByteSymbol","value":"one","@id":3}],{"@ref":2},{"@ref":2}]'
 ]
 
 { #category : 'tests' }
@@ -515,15 +528,34 @@ JacksonWriterTest >> testString [
 
 { #category : 'tests' }
 JacksonWriterTest >> testSymbol [
-	self assert: (self serialize: #foo) equals: '"foo"'.
-	self assert: (self serialize: #FOO) equals: '"FOO"'.
-	self assert: (self serialize: #bytes) equals: '"bytes"'.
-	self assert: (self serialize: #'foo.bar') equals: '"foo.bar"'.
-	self assert: (self serialize: #'foo-bar') equals: '"foo-bar"'.
-	self assert: (self serialize: #foo_bar) equals: '"foo_bar"'.
-	self assert: (self serialize: #'foo/bar') equals: '"foo/bar"'.
-	self assert: (self serialize: #'foo bar') equals: '"foo bar"'.
-	self assert: (self serialize: #foo123) equals: '"foo123"'
+
+	self
+		assert: (self serialize: #foo)
+		equals: '{"@type":"ByteSymbol","value":"foo","@id":1}'.
+	self
+		assert: (self serialize: #FOO)
+		equals: '{"@type":"ByteSymbol","value":"FOO","@id":1}'.
+	self
+		assert: (self serialize: #bytes)
+		equals: '{"@type":"ByteSymbol","value":"bytes","@id":1}'.
+	self
+		assert: (self serialize: #'foo.bar')
+		equals: '{"@type":"ByteSymbol","value":"foo.bar","@id":1}'.
+	self
+		assert: (self serialize: #'foo-bar')
+		equals: '{"@type":"ByteSymbol","value":"foo-bar","@id":1}'.
+	self
+		assert: (self serialize: #foo_bar)
+		equals: '{"@type":"ByteSymbol","value":"foo_bar","@id":1}'.
+	self
+		assert: (self serialize: #'foo/bar')
+		equals: '{"@type":"ByteSymbol","value":"foo/bar","@id":1}'.
+	self
+		assert: (self serialize: #'foo bar')
+		equals: '{"@type":"ByteSymbol","value":"foo bar","@id":1}'.
+	self
+		assert: (self serialize: #foo123)
+		equals: '{"@type":"ByteSymbol","value":"foo123","@id":1}'
 ]
 
 { #category : 'tests' }
@@ -550,21 +582,21 @@ JacksonWriterTest >> testURL [
 	self
 		assert: (self serialize: 'https://pharo.org/files/pharo.png' asUrl)
 		equals:
-		'{"@type":"ZnUrl","scheme":"https","host":"pharo.org","segments":{"@type":"OrderedCollection","@id":2,"array":[3,"files","pharo.png"]},"@id":1}'.
+		'{"@type":"ZnUrl","scheme":{"@type":"ByteSymbol","value":"https","@id":2},"host":"pharo.org","segments":{"@type":"OrderedCollection","@id":3,"array":[4,"files","pharo.png"]},"@id":1}'.
 	self
 		assert: (self serialize: 'mailto:sven@stfx.eu' asUrl)
 		equals:
-		'{"@type":"ZnUrl","scheme":"mailto","host":"stfx.eu","username":"sven","@id":1}'.
+		'{"@type":"ZnUrl","scheme":{"@type":"ByteSymbol","value":"mailto","@id":2},"host":"stfx.eu","username":"sven","@id":1}'.
 	self
 		assert: (self serialize: 'file:///var/log/system.log' asUrl)
 		equals:
-		'{"@type":"ZnUrl","scheme":"file","segments":{"@type":"OrderedCollection","@id":2,"array":[3,"var","log","system.log"]},"@id":1}'.
+		'{"@type":"ZnUrl","scheme":{"@type":"ByteSymbol","value":"file","@id":2},"segments":{"@type":"OrderedCollection","@id":3,"array":[4,"var","log","system.log"]},"@id":1}'.
 	self
 		assert: (self serialize:
 				 'scheme://user:password@host:123/var/log/system.log?foo=1&bar#frag'
 					 asUrl)
 		equals:
-		'{"@type":"ZnUrl","scheme":"scheme","host":"host","port":123,"segments":{"@type":"OrderedCollection","@id":2,"array":[3,"var","log","system.log"]},"query":{"@type":"ZnMultiValueDictionary","dictionary":{"@type":"Dictionary","tally":2,"array":[6,null,null,{"@type":"Association","key":"bar","@id":7},null,null,null,null,null,null,null,null,null,null,null,null,null,{"@type":"Association","key":"foo","value":"1","@id":8}],"@id":5},"orderedKeys":[9,"foo","bar",null,null,null,null,null,null,null,null],"limit":256,"@id":4},"fragment":"frag","username":"user","password":"password","@id":1}'
+		'{"@type":"ZnUrl","scheme":{"@type":"ByteSymbol","value":"scheme","@id":2},"host":"host","port":123,"segments":{"@type":"OrderedCollection","@id":3,"array":[4,"var","log","system.log"]},"query":{"@type":"ZnMultiValueDictionary","dictionary":{"@type":"Dictionary","tally":2,"array":[7,null,null,{"@type":"Association","key":"bar","@id":8},null,null,null,null,null,null,null,null,null,null,null,null,null,{"@type":"Association","key":"foo","value":"1","@id":9}],"@id":6},"orderedKeys":[10,"foo","bar",null,null,null,null,null,null,null,null],"limit":256,"@id":5},"fragment":"frag","username":"user","password":"password","@id":1}'
 ]
 
 { #category : 'tests' }

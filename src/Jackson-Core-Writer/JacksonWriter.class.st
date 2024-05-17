@@ -229,35 +229,37 @@ JacksonWriter >> writeNull [
 { #category : 'writing' }
 JacksonWriter >> writeObject: anObject [
 
-    self writeObject: anObject streamMap: [ :map |
-        anObject class allInstVarNames do: [ :each |
-            (anObject instVarNamed: each) ifNotNil: [ :value |
-                map at: each asSymbol put: value ] ] ]
+	self writeObject: anObject streamMap: [ :map |
+		anObject class allInstVarNames do: [ :each |
+			(anObject instVarNamed: each) ifNotNil: [ :value |
+				map at: each asString put: value ] ] ]
 ]
 
 { #category : 'writing' }
-JacksonWriter >> writeObject: anObject do: block [
+JacksonWriter >> writeObject: object do: block [
 	"No checks, everything can be serialized."
 
-	self with: anObject do: block
+	self with: object do: [
+		| id position |
+		writeStream nextPutAll: '{"@type":"'.
+		writeStream nextPutAll: object class name.
+		writeStream nextPutAll: '",'.
+		id := objects size.
+		"check if anything was written to avoid trailing comma"
+		position := writeStream position.
+		block value.
+		position = writeStream position ifFalse: [ writeStream nextPut: $, ].
+		writeStream nextPutAll: '"@id":'.
+		writeStream print: id.
+		writeStream nextPut: $} ]
 ]
 
 { #category : 'writing' }
 JacksonWriter >> writeObject: object streamMap: block [
 
-	self writeObject: object do: [
-		| mapWriter id position |
-		mapWriter := STONMapWriter on: self.
-		writeStream nextPut: ${.
-		self writeAssociation: '@type' -> object className.
-		self mapElementSeparator.
-		id := objects size.
-		"check if anything was written to avoid trailing comma"
-		position := writeStream position.
-		self indentedDo: [ block value: mapWriter ].
-		position = writeStream position ifFalse: [ self mapElementSeparator ].
-		self writeAssociation: '@id' -> id.
-		writeStream nextPut: $} ]
+	self
+		writeObject: object
+		do: [ block value: (STONMapWriter on: self) ]
 ]
 
 { #category : 'writing' }
@@ -278,4 +280,12 @@ JacksonWriter >> writeScaledDecimal: scaledDecimal [
 		print: scaledDecimal denominator;
 		nextPut: $s;
 		print: scaledDecimal scale
+]
+
+{ #category : 'writing' }
+JacksonWriter >> writeSymbol: aSymbol [
+
+	self writeObject: aSymbol do: [
+		writeStream nextPutAll: '"value":'.
+		self encodeString: aSymbol ]
 ]
