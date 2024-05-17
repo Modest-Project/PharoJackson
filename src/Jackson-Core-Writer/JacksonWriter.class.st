@@ -17,13 +17,11 @@ JacksonWriter class >> serialize: anObject [
 { #category : 'writing' }
 JacksonWriter >> encodeCollection: collection [
 
-	writeStream nextPut: ${.
-	self writeAssociation: '@type' -> collection className.
-	self mapElementSeparator.
-	self writeAssociation: '@id' -> objects size.
-	self mapElementSeparator.
-	self writeString: 'array'.
-	writeStream nextPut: $:.
+	writeStream nextPutAll: '{"@type":"'.
+	writeStream nextPutAll: collection class name.
+	writeStream nextPutAll: '","@id":'.
+	writeStream print: objects size.
+	writeStream nextPutAll: ',"array":'.
 	self writeList: collection asArray.
 	writeStream nextPut: $}
 ]
@@ -112,23 +110,17 @@ JacksonWriter >> writeAssociation: association [
 { #category : 'writing' }
 JacksonWriter >> writeCharacter: character [
 
-	writeStream nextPut: ${.
-	self writeAssociation: '@type' -> character className.
-	self mapElementSeparator.
-	self writeString: 'value'.
-	writeStream nextPut: $:.
-	self writeInteger: character asciiValue.
+	writeStream nextPutAll: '{"@type":"Character","value":'.
+	writeStream print: character asciiValue.
 	writeStream nextPut: $}
 ]
 
 { #category : 'writing' }
 JacksonWriter >> writeClass: aClass [
 
-	writeStream nextPut: ${.
-	self writeAssociation: '@type' -> 'Class'.
-	self mapElementSeparator.
-	self writeAssociation: 'name' -> aClass name.
-	writeStream nextPut: $}
+	writeStream nextPutAll: '{"@type":"Class","name":"'.
+	writeStream nextPutAll: aClass name.
+	writeStream nextPutAll: '"}'
 ]
 
 { #category : 'writing' }
@@ -140,8 +132,9 @@ JacksonWriter >> writeCollection: collection [
 { #category : 'writing' }
 JacksonWriter >> writeCompiledBlock: aCompiledBlock [
 
-	self writeObject: aCompiledBlock streamMap: [ :map |
-		map at: 'source' put: aCompiledBlock sourceNode sourceCode.
+	self writeObject: aCompiledBlock do: [
+		writeStream nextPutAll: '"source":'.
+		self encodeString: aCompiledBlock sourceNode sourceCode.
 
 		"serialize bound LiteralVariables"
 		(aCompiledBlock literalsEvenTheOnesInTheInnerBlocks select: [
@@ -186,14 +179,17 @@ JacksonWriter >> writeFraction: fraction [
 JacksonWriter >> writeFullBlockClosure: aFullBlockClosure [
 	"Serialize bound variables and ignore outerContext."
 
-	self writeObject: aFullBlockClosure streamMap: [ :map |
-		map at: 'compiledBlock' put: aFullBlockClosure compiledBlock.
-		map at: 'numArgs' put: aFullBlockClosure numArgs.
+	self writeObject: aFullBlockClosure do: [
+		writeStream nextPutAll: '"compiledBlock":'.
+		self writeCompiledBlock: aFullBlockClosure compiledBlock.
+		writeStream nextPutAll: ',"numArgs":'.
+		writeStream print: aFullBlockClosure numArgs.
 
 		"serialize receiver if it is read"
 		aFullBlockClosure receiver ifNotNil: [ :receiver |
 			aFullBlockClosure compiledBlock readsSelf ifTrue: [
-				map at: 'receiver' put: receiver ] ].
+				writeStream nextPutAll: ',"receiver":'.
+				self nextPut: receiver ] ].
 
 		self writeFullBlockClosureVars: aFullBlockClosure ]
 ]
