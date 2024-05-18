@@ -40,7 +40,7 @@ JacksonWriter serialize: array
 dictionary := Dictionary newFrom: { 1 -> 2. 3 -> 4 }.
 JacksonWriter serialize: dictionary
 ```
-Dictionaries are serialized with an array key-value arrays:
+Dictionaries are serialized with an array of key-value arrays:
 ```json
 {"@type":"Dictionary","array":[[1,2],[3,4]],"@id":1}
 ```
@@ -49,7 +49,7 @@ Dictionaries are serialized with an array key-value arrays:
 orderedCollection := (OrderedCollection new add: 5; add: nil; yourself).
 JacksonWriter serialize: orderedCollection
 ```
-With only the added nil and not all nil element of its array:
+With only the added nil, not all nil elements of its array:
 ```json
 {"@type":"OrderedCollection","array":[2,5,null],"@id":1}
 ```
