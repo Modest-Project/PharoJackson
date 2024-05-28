@@ -40,9 +40,9 @@ JacksonWriter serialize: array
 dictionary := Dictionary newFrom: { 1 -> 2. 3 -> 4 }.
 JacksonWriter serialize: dictionary
 ```
-Dictionaries are serialized with an array of key-value arrays:
 ```json
-{"@type":"Dictionary","array":[[1,2],[3,4]],"@id":1}
+{"@type":"Dictionary","@":[{"@type":"Association","key":1,"value":2,"@id":2},{"
+@type":"Association","key":3,"value":4,"@id":3}],"@id":1}
 ```
 ---
 ```st
