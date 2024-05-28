@@ -50,7 +50,7 @@ JacksonWriter serialize: orderedCollection
 ```
 With only the added nil, not all nil elements of its array:
 ```json
-{"@type":"OrderedCollection","array":[2,5,null],"@id":1}
+{"@type":"OrderedCollection","@":[5,null],"@id":1}
 ```
 ---
 ```st
