@@ -6,6 +6,6 @@ OrderedCollection >> jacksonOn: jacksonWriter [
 	However, this disables making a @ref to the inner array."
 
 	self class == OrderedCollection
-		ifTrue: [ jacksonWriter writeIndexable: self ]
+		ifTrue: [ jacksonWriter writeCollection: self ]
 		ifFalse: [ super jacksonOn: jacksonWriter ]
 ]

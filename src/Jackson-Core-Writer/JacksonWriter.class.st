@@ -33,9 +33,9 @@ JacksonWriter >> encodeIndexable: anIndexable [
 	Its value is encoded as the meta-property '@' holding the field array."
 
 	writeStream nextPutAll: '"@":['.
-	1 to: anIndexable size do: [ :i |
-		i = 1 ifFalse: [ writeStream nextPut: $, ].
-		self nextPut: (anIndexable at: i) ].
+	1 to: anIndexable basicSize do: [ :i |
+		i == 1 ifFalse: [ writeStream nextPut: $, ].
+		self nextPut: (anIndexable basicAt: i) ].
 	writeStream nextPut: $]
 ]
 
@@ -120,16 +120,11 @@ JacksonWriter >> nextPut: anObject [
 { #category : 'private' }
 JacksonWriter >> with: object do: block [
 
-	| index |
-	referencePolicy = #ignore ifTrue: [ ^ block value ].
-	(index := objects at: object ifAbsent: [ nil ])
-		ifNotNil: [
-			referencePolicy = #error ifTrue: [
-				^ self error: 'shared reference detected' ].
-			self writeReference: index ]
-		ifNil: [
-			index := objects size + 1.
-			objects at: object put: index.
+	objects
+		at: object
+		ifPresent: [ :index | self writeReference: index ]
+		ifAbsent: [
+			objects at: object put: objects size + 1.
 			block value ]
 ]
 
@@ -188,19 +183,25 @@ JacksonWriter >> writeCompiledBlock: aCompiledBlock [
 ]
 
 { #category : 'writing' }
+JacksonWriter >> writeCompiledCode: aCompiledCode [
+
+	self shouldBeImplemented
+]
+
+{ #category : 'writing' }
 JacksonWriter >> writeFloat: float [
 
 	float isFinite
 		ifTrue: [ writeStream print: float ]
 		ifFalse: [
-			| argument |
-			argument := float isNaN
-				            ifTrue: [ #nan ]
-				            ifFalse: [
-					            float negative
-						            ifTrue: [ #negativeInfinity ]
-						            ifFalse: [ #infinity ] ].
-			self writeString: argument ]
+			writeStream nextPutAll: '{"@type":"Float","value":"'.
+			writeStream nextPutAll: (float isNaN
+					 ifTrue: [ #nan ]
+					 ifFalse: [
+						 float negative
+							 ifTrue: [ #negativeInfinity ]
+							 ifFalse: [ #infinity ] ]).
+			writeStream nextPutAll: '"}' ]
 ]
 
 { #category : 'writing' }

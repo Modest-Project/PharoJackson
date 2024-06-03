@@ -284,9 +284,9 @@ JacksonWriterTest >> testFloat [
 	self assert: (self serialize: (10 raisedTo: 100) asFloat) equals: '1.0e100'.
 	self assert: (self serialize: (10 raisedTo: -50) asFloat) equals: '1.0e-50'.
 	self assert: (self serialize: (10 raisedTo: -50) asFloat negated) equals: '-1.0e-50'.
-	self assert: (self serialize: Float nan) equals: '"nan"'.
-	self assert: (self serialize: Float infinity) equals: '"infinity"'.
-	self assert: (self serialize: Float negativeInfinity) equals: '"negativeInfinity"'
+	self assert: (self serialize: Float nan) equals: '{"@type":"Float","value":"nan"}'.
+	self assert: (self serialize: Float infinity) equals: '{"@type":"Float","value":"infinity"}'.
+	self assert: (self serialize: Float negativeInfinity) equals: '{"@type":"Float","value":"negativeInfinity"}'
 ]
 
 { #category : 'tests' }
