@@ -1,11 +1,10 @@
 Class {
-	#name : 'JacksonWriter',
-	#superclass : 'STONWriter',
-	#category : 'Jackson-Core-Writer',
-	#package : 'Jackson-Core-Writer'
+	#name : #JacksonWriter,
+	#superclass : #STONWriter,
+	#category : 'Jackson-Core-Writer'
 }
 
-{ #category : 'private' }
+{ #category : #private }
 JacksonWriter class >> serialize: anObject [
 
 	^ String streamContents: [ :stream |
@@ -14,19 +13,32 @@ JacksonWriter class >> serialize: anObject [
 			  nextPut: anObject ]
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> encodeCollection: collection [
+	"An optimization for encoding a kind of array-wrapping Collection, e.g. Set.
+	Its value is encoded as the meta-property '@' holding the elements."
 
-	writeStream nextPutAll: '{"@type":"'.
-	writeStream nextPutAll: collection class name.
-	writeStream nextPutAll: '","@id":'.
-	writeStream print: objects size.
-	writeStream nextPutAll: ',"array":'.
-	self writeList: collection asArray.
-	writeStream nextPut: $}
+	writeStream nextPutAll: '"@":['.
+	collection
+		do: [ :element | self nextPut: element ]
+		separatedBy: [ writeStream nextPut: $, ].
+	writeStream nextPut: $]
 ]
 
-{ #category : 'private' }
+{ #category : #writing }
+JacksonWriter >> encodeIndexable: anIndexable [
+	"An indexable is an object with type and id metadata but without inst vars.
+	Instead, it has a variable number of indexable fields (see VariableLayout), e.g. Path.
+	Its value is encoded as the meta-property '@' holding the field array."
+
+	writeStream nextPutAll: '"@":['.
+	1 to: anIndexable basicSize do: [ :i |
+		i == 1 ifFalse: [ writeStream nextPut: $, ].
+		self nextPut: (anIndexable basicAt: i) ].
+	writeStream nextPut: $]
+]
+
+{ #category : #private }
 JacksonWriter >> encodeKey: key value: value [
 	"For Json key/value like @type or fields"
 
@@ -35,33 +47,52 @@ JacksonWriter >> encodeKey: key value: value [
 	self nextPut: value
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> encodeList: elements [
+	"Only Arrays are represented with this method.
+	Encoded with its id as first element, followed by the array elements."
 
 	writeStream nextPut: $[.
-	writeStream print: objects size.
-	elements isEmpty
-		ifFalse: [
-			self listElementSeparator. "For the id"
-			self indentedDo: [
-				elements
-					do: [ :each | self nextPut: each ]
-					separatedBy: [ self listElementSeparator ] ]].
+	writeStream print: objects size. "the id"
+	elements do: [ :each |
+		writeStream nextPut: $,.
+		self nextPut: each ].
 	writeStream nextPut: $]
 ]
 
-{ #category : 'private' }
-JacksonWriter >> encodeMapKey: key value: value [
-	"For Dictionary key/value"
-	
-	writeStream nextPut: $[.
-	self nextPut: key.
-	self listElementSeparator.
-	self nextPut: value.
+{ #category : #writing }
+JacksonWriter >> encodeMap: pairs [
+	"An optimization for encoding a kind of key-value Collection, e.g. Dictionary.
+	Its value is encoded as the meta-property '@' holding the Associations."
+
+	| first |
+	writeStream nextPutAll: '"@":['.
+	first := true.
+	pairs associationsDo: [ :association |
+		first
+			ifTrue: [ first := false ]
+			ifFalse: [ writeStream nextPut: $, ].
+		self writeAssociation: association ].
 	writeStream nextPut: $]
 ]
 
-{ #category : 'private' }
+{ #category : #writing }
+JacksonWriter >> encodeObject: anObject [
+
+	| first |
+	first := true.
+	anObject class allInstVarNames do: [ :varName |
+		(anObject instVarNamed: varName) ifNotNil: [ :value |
+			first
+				ifTrue: [ first := false ]
+				ifFalse: [ writeStream nextPut: $, ].
+			writeStream nextPut: $".
+			writeStream nextPutAll: varName.
+			writeStream nextPutAll: '":'.
+			self nextPut: value ] ]
+]
+
+{ #category : #private }
 JacksonWriter >> encodeString: string [
 	writeStream nextPut: $".
 	keepNewLines
@@ -72,42 +103,39 @@ JacksonWriter >> encodeString: string [
 	writeStream nextPut: $"
 ]
 
-{ #category : 'initialization' }
+{ #category : #initialization }
 JacksonWriter >> initialize [
 
 	super initialize.
 	self jsonMode: true
 ]
 
-{ #category : 'public' }
+{ #category : #public }
 JacksonWriter >> nextPut: anObject [
 
 	anObject jacksonOn: self
 ]
 
-{ #category : 'private' }
+{ #category : #private }
 JacksonWriter >> with: object do: block [
 
-	| index |
-	referencePolicy = #ignore ifTrue: [ ^ block value ].
-	(index := objects at: object ifAbsent: [ nil ])
-		ifNotNil: [
-			referencePolicy = #error ifTrue: [
-				^ self error: 'shared reference detected' ].
-			self writeReference: index ]
-		ifNil: [
-			index := objects size + 1.
-			objects at: object put: index.
+	objects
+		at: object
+		ifPresent: [ :index | self writeReference: index ]
+		ifAbsent: [
+			objects at: object put: objects size + 1.
 			block value ]
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeAssociation: association [
 
-	self encodeKey: association key value: association value
+	self writeObject: association streamMap: [ :map |
+		map at: 'key' put: association key.
+		map at: 'value' put: association value ]
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeCharacter: character [
 
 	writeStream nextPutAll: '{"@type":"Character","value":'.
@@ -115,7 +143,7 @@ JacksonWriter >> writeCharacter: character [
 	writeStream nextPut: $}
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeClass: aClass [
 
 	writeStream nextPutAll: '{"@type":"Class","name":"'.
@@ -123,18 +151,21 @@ JacksonWriter >> writeClass: aClass [
 	writeStream nextPutAll: '"}'
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeCollection: collection [
 
-	self with: collection do: [ self encodeCollection: collection ]
+	self
+		writeObject: collection
+		do: [ self encodeCollection: collection ]
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeCompiledBlock: aCompiledBlock [
 
 	self writeObject: aCompiledBlock do: [
-		writeStream nextPutAll: '"source":'.
-		self encodeString: aCompiledBlock sourceNode sourceCode.
+		aCompiledBlock sourceNode ifNotNil: [ :source |
+			writeStream nextPutAll: '"source":'.
+			self encodeString: source sourceCode ].
 
 		"serialize bound LiteralVariables"
 		(aCompiledBlock literalsEvenTheOnesInTheInnerBlocks select: [
@@ -150,35 +181,44 @@ JacksonWriter >> writeCompiledBlock: aCompiledBlock [
 			writeStream nextPut: $} ] ]
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
+JacksonWriter >> writeCompiledCode: aCompiledCode [
+
+	self shouldBeImplemented
+]
+
+{ #category : #writing }
 JacksonWriter >> writeFloat: float [
 
 	float isFinite
 		ifTrue: [ writeStream print: float ]
 		ifFalse: [
-			| argument |
-			argument := float isNaN
-				            ifTrue: [ #nan ]
-				            ifFalse: [
-					            float negative
-						            ifTrue: [ #negativeInfinity ]
-						            ifFalse: [ #infinity ] ].
-			self writeString: argument ]
+			writeStream nextPutAll: '{"@type":"Float","value":"'.
+			writeStream nextPutAll: (float isNaN
+					 ifTrue: [ #nan ]
+					 ifFalse: [
+						 float negative
+							 ifTrue: [ #negativeInfinity ]
+							 ifFalse: [ #infinity ] ]).
+			writeStream nextPutAll: '"}' ]
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeFraction: fraction [
 
 	self shouldNotImplement
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeFullBlockClosure: aFullBlockClosure [
 	"Serialize bound variables and ignore outerContext."
 
 	self writeObject: aFullBlockClosure do: [
-		writeStream nextPutAll: '"compiledBlock":'.
-		self writeCompiledBlock: aFullBlockClosure compiledBlock.
+		aFullBlockClosure compiledBlock ifNotNil: [ :compiledBlock |
+			writeStream nextPutAll: '"compiledBlock":'.
+			self writeCompiledBlock: compiledBlock.
+			self writeFullBlockClosureVars: aFullBlockClosure ].
+
 		writeStream nextPutAll: ',"numArgs":'.
 		writeStream print: aFullBlockClosure numArgs.
 
@@ -186,12 +226,10 @@ JacksonWriter >> writeFullBlockClosure: aFullBlockClosure [
 		aFullBlockClosure receiver ifNotNil: [ :receiver |
 			aFullBlockClosure compiledBlock readsSelf ifTrue: [
 				writeStream nextPutAll: ',"receiver":'.
-				self nextPut: receiver ] ].
-
-		self writeFullBlockClosureVars: aFullBlockClosure ]
+				self nextPut: receiver ] ] ]
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeFullBlockClosureVars: aFullBlockClosure [
 	"serialize variables, ignore (inner) block arguments and temporaries"
 
@@ -213,22 +251,43 @@ JacksonWriter >> writeFullBlockClosureVars: aFullBlockClosure [
 		writeStream nextPut: $} ]
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
+JacksonWriter >> writeIndexable: anIndexable [
+
+	self
+		writeObject: anIndexable
+		do: [ self encodeIndexable: anIndexable ]
+]
+
+{ #category : #writing }
+JacksonWriter >> writeIndexableObject: indexableObject [
+
+	self writeObject: indexableObject do: [
+		self encodeIndexable: indexableObject.
+		self encodeObject: indexableObject ]
+]
+
+{ #category : #writing }
+JacksonWriter >> writeMap: hashedCollection [
+
+	self
+		writeObject: hashedCollection
+		do: [ self encodeMap: hashedCollection ]
+]
+
+{ #category : #writing }
 JacksonWriter >> writeNull [
 
 	writeStream nextPutAll: 'null'
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeObject: anObject [
 
-	self writeObject: anObject streamMap: [ :map |
-		anObject class allInstVarNames do: [ :each |
-			(anObject instVarNamed: each) ifNotNil: [ :value |
-				map at: each asString put: value ] ] ]
+	self writeObject: anObject do: [ self encodeObject: anObject ]
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeObject: object do: block [
 	"No checks, everything can be serialized."
 
@@ -247,7 +306,7 @@ JacksonWriter >> writeObject: object do: block [
 		writeStream nextPut: $} ]
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeObject: object streamMap: block [
 
 	self
@@ -255,7 +314,7 @@ JacksonWriter >> writeObject: object streamMap: block [
 		do: [ block value: (STONMapWriter on: self) ]
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeReference: index [
 
 	writeStream
@@ -264,13 +323,13 @@ JacksonWriter >> writeReference: index [
 		nextPut: $}
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeScaledDecimal: scaledDecimal [
 
 	self shouldNotImplement
 ]
 
-{ #category : 'writing' }
+{ #category : #writing }
 JacksonWriter >> writeSymbol: aSymbol [
 
 	self writeObject: aSymbol do: [

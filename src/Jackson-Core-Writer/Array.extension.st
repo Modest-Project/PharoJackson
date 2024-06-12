@@ -1,7 +1,9 @@
-Extension { #name : 'Array' }
+Extension { #name : #Array }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : #'*Jackson-Core-Writer' }
 Array >> jacksonOn: jacksonWriter [
 
-	jacksonWriter writeList: self
+	self class == Array
+		ifTrue: [ jacksonWriter writeList: self ]
+		ifFalse: [ super jacksonOn: jacksonWriter ]
 ]

@@ -1,6 +1,6 @@
-Extension { #name : 'Boolean' }
+Extension { #name : #Boolean }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : #'*Jackson-Core-Writer' }
 Boolean >> jacksonOn: jacksonWriter [
 	jacksonWriter writeBoolean: self
 ]
