@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'writer'
 	],
-	#category : 'Jackson-Core-Tests'
+	#category : #'Jackson-Core-Tests'
 }
 
 { #category : #private }
@@ -168,14 +168,6 @@ JacksonWriterTest >> testClass [
 	self
 		assert: (self serialize: Point)
 		equals: '{"@type":"Class","name":"Point"}' "TO DO"
-]
-
-{ #category : #tests }
-JacksonWriterTest >> testClassWithNoInstVars [
-
-	self
-		assert: (self serialize: MockClassWithNoInstVars new)
-		equals: '{"@type":"MockClassWithNoInstVars","@id":1}'
 ]
 
 { #category : #tests }
@@ -454,6 +446,14 @@ JacksonWriterTest >> testMimeType [
 { #category : #tests }
 JacksonWriterTest >> testNil [
 	self assert: (self serialize: nil) equals: 'null'
+]
+
+{ #category : #tests }
+JacksonWriterTest >> testObjectWithNoInstVars [
+
+	self
+		assert: (self serialize: MockClassWithNoInstVars new)
+		equals: '{"@type":"MockClassWithNoInstVars","@id":1}'
 ]
 
 { #category : #tests }
