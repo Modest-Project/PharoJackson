@@ -1,7 +1,7 @@
 Class {
 	#name : #JacksonWriter,
 	#superclass : #STONWriter,
-	#category : 'Jackson-Core-Writer'
+	#category : #'Jackson-Core-Writer'
 }
 
 { #category : #private }
@@ -82,14 +82,15 @@ JacksonWriter >> encodeObject: anObject [
 	| first |
 	first := true.
 	anObject class allInstVarNames do: [ :varName |
-		(anObject instVarNamed: varName) ifNotNil: [ :value |
-			first
-				ifTrue: [ first := false ]
-				ifFalse: [ writeStream nextPut: $, ].
-			writeStream nextPut: $".
-			writeStream nextPutAll: varName.
-			writeStream nextPutAll: '":'.
-			self nextPut: value ] ]
+		| value |
+		value := anObject instVarNamed: varName.
+		first
+			ifTrue: [ first := false ]
+			ifFalse: [ writeStream nextPut: $, ].
+		writeStream nextPut: $".
+		writeStream nextPutAll: varName.
+		writeStream nextPutAll: '":'.
+		self nextPut: value ]
 ]
 
 { #category : #private }
