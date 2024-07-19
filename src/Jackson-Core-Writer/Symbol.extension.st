@@ -1,6 +1,6 @@
-Extension { #name : #Symbol }
+Extension { #name : 'Symbol' }
 
-{ #category : #'*Jackson-Core-Writer' }
+{ #category : '*Jackson-Core-Writer' }
 Symbol >> jacksonOn: jacksonWriter [
 	jacksonWriter writeSymbol: self
 ]
