@@ -1,6 +1,6 @@
 Class {
 	#name : 'JacksonReaderTest',
-	#superclass : 'STONReaderTest',
+	#superclass : 'STONWriterTest',
 	#instVars : [
 		'reader'
 	],
@@ -8,11 +8,11 @@ Class {
 	#package : 'Jackson-Core-Tests'
 }
 
-{ #category : 'private' }
-JacksonReaderTest >> materialize: string [
+{ #category : 'running' }
+JacksonReaderTest >> materialize: aString [
 
-	^ JacksonReader new
-		  on: string readStream;
+	^ reader
+		  on: aString readStream;
 		  next
 ]
 
@@ -437,6 +437,19 @@ JacksonReaderTest >> testMimeType [
 		equals: ZnMimeType textPlain
 ]
 
+{ #category : 'running' }
+JacksonReaderTest >> testNil [
+
+	self assert: (self materialize: 'null') equals: nil
+]
+
+{ #category : 'running' }
+JacksonReaderTest >> testNumber [
+
+	self assert: (self materialize: '1') equals: 1.
+	self assert: (self materialize: '-8') equals: -8
+]
+
 { #category : 'tests' }
 JacksonReaderTest >> testObjectWithNoInstVars [
 
@@ -531,6 +544,17 @@ JacksonReaderTest >> testSet [
 	self
 		assert: (self materialize: '{"@type":"Set","@":[],"@id":1}')
 		equals: Set new
+]
+
+{ #category : 'running' }
+JacksonReaderTest >> testString [
+
+	self assert: (self materialize: '"foo"') equals: 'foo'.
+	self assert: (self materialize: '"FOO"') equals: 'FOO'.
+	self
+		assert: (self materialize: '"élève en Français"')
+		equals: 'élève en Français'.
+	self assert: (self materialize: '"\s\t"') equals: ' 	'
 ]
 
 { #category : 'tests' }
