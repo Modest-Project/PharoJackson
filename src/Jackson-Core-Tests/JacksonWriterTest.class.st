@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'writer'
 	],
-	#category : #'Jackson-Core-Tests'
+	#category : 'Jackson-Core-Tests'
 }
 
 { #category : #private }
@@ -234,15 +234,14 @@ JacksonWriterTest >> testDictionary [
 JacksonWriterTest >> testDictionaryWithComplexKeys [
 
 	| collection |
-	collection := Dictionary new
+	collection := OrderedDictionary new
 		              at: true put: 1;
 		              at: #( foo ) put: 2;
 		              yourself.
-
 	self
 		assert: (self serialize: collection)
 		equals:
-		'{"@type":"Dictionary","@":[{"@type":"Association","key":[3,{"@type":"ByteSymbol","value":"foo","@id":4}],"value":2,"@id":2},{"@type":"Association","key":true,"value":1,"@id":5}],"@id":1}'
+		'{"@type":"OrderedDictionary","@":[{"@type":"Association","key":true,"value":1,"@id":2},{"@type":"Association","key":[4,{"@type":"ByteSymbol","value":"foo","@id":5}],"value":2,"@id":3}],"@id":1}'
 ]
 
 { #category : #tests }
@@ -373,7 +372,8 @@ JacksonWriterTest >> testLinkedList [
 	| collection |
 	self
 		assert: (self serialize: LinkedList new)
-		equals: '{"@type":"LinkedList","@id":1}'.
+		equals:
+		'{"@type":"LinkedList","firstLink":null,"lastLink":null,"@id":1}'.
 
 	collection := LinkedList
 		              with: 1
@@ -383,7 +383,7 @@ JacksonWriterTest >> testLinkedList [
 	self
 		assert: (self serialize: collection)
 		equals:
-		'{"@type":"LinkedList","firstLink":{"@type":"ValueLink","nextLink":{"@type":"ValueLink","nextLink":{"@type":"ValueLink","nextLink":{"@type":"ValueLink","@id":5},"value":3,"@id":4},"value":2,"@id":3},"value":1,"@id":2},"lastLink":{"@ref":5},"@id":1}'
+		'{"@type":"LinkedList","firstLink":{"@type":"ValueLink","nextLink":{"@type":"ValueLink","nextLink":{"@type":"ValueLink","nextLink":{"@type":"ValueLink","nextLink":null,"value":null,"@id":5},"value":3,"@id":4},"value":2,"@id":3},"value":1,"@id":2},"lastLink":{"@ref":5},"@id":1}'
 ]
 
 { #category : #tests }
@@ -436,7 +436,7 @@ JacksonWriterTest >> testMimeType [
 	self
 		assert: (self serialize: ZnMimeType applicationJson)
 		equals:
-		'{"@type":"ZnMimeType","main":"application","sub":"json","@id":1}'.
+		'{"@type":"ZnMimeType","main":"application","sub":"json","parameters":null,"@id":1}'.
 	self
 		assert: (self serialize: ZnMimeType textPlain)
 		equals:
@@ -620,15 +620,15 @@ JacksonWriterTest >> testURL [
 	self
 		assert: (self serialize: 'https://pharo.org/files/pharo.png' asUrl)
 		equals:
-		'{"@type":"ZnUrl","scheme":{"@type":"ByteSymbol","value":"https","@id":2},"host":"pharo.org","segments":{"@type":"OrderedCollection","@":["files","pharo.png"],"@id":3},"@id":1}'.
+		'{"@type":"ZnUrl","scheme":{"@type":"ByteSymbol","value":"https","@id":2},"host":"pharo.org","port":null,"segments":{"@type":"OrderedCollection","@":["files","pharo.png"],"@id":3},"query":null,"fragment":null,"username":null,"password":null,"@id":1}'.
 	self
 		assert: (self serialize: 'mailto:sven@stfx.eu' asUrl)
 		equals:
-		'{"@type":"ZnUrl","scheme":{"@type":"ByteSymbol","value":"mailto","@id":2},"host":"stfx.eu","username":"sven","@id":1}'.
+		'{"@type":"ZnUrl","scheme":{"@type":"ByteSymbol","value":"mailto","@id":2},"host":"stfx.eu","port":null,"segments":null,"query":null,"fragment":null,"username":"sven","password":null,"@id":1}'.
 	self
 		assert: (self serialize: 'file:///var/log/system.log' asUrl)
 		equals:
-		'{"@type":"ZnUrl","scheme":{"@type":"ByteSymbol","value":"file","@id":2},"segments":{"@type":"OrderedCollection","@":["var","log","system.log"],"@id":3},"@id":1}'.
+		'{"@type":"ZnUrl","scheme":{"@type":"ByteSymbol","value":"file","@id":2},"host":null,"port":null,"segments":{"@type":"OrderedCollection","@":["var","log","system.log"],"@id":3},"query":null,"fragment":null,"username":null,"password":null,"@id":1}'.
 	self
 		assert: (self serialize:
 				 'scheme://user:password@host:123/var/log/system.log?foo=1&bar#frag'
@@ -670,7 +670,8 @@ JacksonWriterTest >> testUser3Nil [
 	user := STONTestUser3 new.
 	self
 		assert: (self serialize: user)
-		equals: '{"@type":"STONTestUser3","enabled":true,"@id":1}'
+		equals:
+		'{"@type":"STONTestUser3","username":null,"password":null,"enabled":true,"@id":1}'
 ]
 
 { #category : #tests }
@@ -680,7 +681,8 @@ JacksonWriterTest >> testUserNil [
 	user := STONTestUser new.
 	self
 		assert: (self serialize: user)
-		equals: '{"@type":"STONTestUser","enabled":true,"@id":1}'
+		equals:
+		'{"@type":"STONTestUser","username":null,"password":null,"enabled":true,"@id":1}'
 ]
 
 { #category : #tests }
