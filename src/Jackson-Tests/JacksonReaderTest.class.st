@@ -4,8 +4,8 @@ Class {
 	#instVars : [
 		'reader'
 	],
-	#category : 'Jackson-Core-Tests',
-	#package : 'Jackson-Core-Tests'
+	#category : 'Jackson-Tests',
+	#package : 'Jackson-Tests'
 }
 
 { #category : 'running' }

@@ -1,8 +1,8 @@
 Class {
 	#name : 'JacksonWriter',
 	#superclass : 'STONWriter',
-	#category : 'Jackson-Core-Writer',
-	#package : 'Jackson-Core-Writer'
+	#category : 'Jackson-Writer',
+	#package : 'Jackson-Writer'
 }
 
 { #category : 'private' }
@@ -266,6 +266,7 @@ JacksonWriter >> writeIndexableObject: indexableObject [
 
 	self writeObject: indexableObject do: [
 		self encodeIndexable: indexableObject.
+		writeStream nextPut: $,.
 		self encodeObject: indexableObject ]
 ]
 

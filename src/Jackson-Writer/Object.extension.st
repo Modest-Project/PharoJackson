@@ -1,6 +1,6 @@
 Extension { #name : 'Object' }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : '*Jackson-Writer' }
 Object >> jacksonOn: jacksonWriter [
 	"We should be able to handle any subclass of AbstractLayout."
 

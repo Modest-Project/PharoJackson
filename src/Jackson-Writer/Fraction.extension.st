@@ -1,6 +1,6 @@
 Extension { #name : 'Fraction' }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : '*Jackson-Writer' }
 Fraction >> jacksonOn: jacksonWriter [
 	jacksonWriter writeObject: self
 ]

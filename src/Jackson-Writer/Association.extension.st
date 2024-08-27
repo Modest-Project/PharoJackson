@@ -1,6 +1,6 @@
 Extension { #name : 'Association' }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : '*Jackson-Writer' }
 Association >> jacksonOn: jacksonWriter [
 	"Shortcut to write an association quickly."
 

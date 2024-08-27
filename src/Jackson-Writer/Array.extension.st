@@ -1,6 +1,6 @@
 Extension { #name : 'Array' }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : '*Jackson-Writer' }
 Array >> jacksonOn: jacksonWriter [
 
 	self class == Array

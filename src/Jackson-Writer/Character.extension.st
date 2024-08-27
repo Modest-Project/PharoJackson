@@ -1,6 +1,6 @@
 Extension { #name : 'Character' }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : '*Jackson-Writer' }
 Character >> jacksonOn: jacksonWriter [
 	jacksonWriter writeCharacter: self
 ]

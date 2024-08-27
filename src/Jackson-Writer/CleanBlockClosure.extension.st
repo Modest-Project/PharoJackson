@@ -1,6 +1,6 @@
 Extension { #name : 'CleanBlockClosure' }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : '*Jackson-Writer' }
 CleanBlockClosure >> jacksonOn: jacksonWriter [
 	"Ignore literal and outerContext."
 

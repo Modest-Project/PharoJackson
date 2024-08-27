@@ -1,12 +1,8 @@
 Class {
 	#name : 'JacksonReader',
-	#superclass : 'STONWriter',
-	#instVars : [
-		'readStream',
-		'stringStream'
-	],
-	#category : 'Jackson-Core',
-	#package : 'Jackson-Core'
+	#superclass : 'STONReader',
+	#category : 'Jackson-Reader',
+	#package : 'Jackson-Reader'
 }
 
 { #category : 'instance creation' }
@@ -15,7 +11,7 @@ JacksonReader class >> fromString: string [
 	^ (self on: string readStream) next
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'private' }
 JacksonReader >> consumeWhitespace [
 	"Strip whitespaces from the input stream."
 
@@ -23,7 +19,7 @@ JacksonReader >> consumeWhitespace [
 		whileTrue: [ readStream next ]
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'private' }
 JacksonReader >> expectChar: character [
 	"Expect character and consume input and optional whitespace at the end,
 	 throw an error otherwise."
@@ -32,7 +28,7 @@ JacksonReader >> expectChar: character [
 		self error: character asString , ' expected' ]
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'private' }
 JacksonReader >> match: string do: block [
 	"Try to read and consume string and execute block if successful.
 	Else do nothing (but do not back up)"
@@ -42,7 +38,7 @@ JacksonReader >> match: string do: block [
 		block value ]
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'private' }
 JacksonReader >> matchChar: character [
 	"Tries to match character, consume input and
 	answer true if successful and consumes whitespace at the end."
@@ -54,7 +50,7 @@ JacksonReader >> matchChar: character [
 		  ifFalse: [ false ]
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'public' }
 JacksonReader >> next [
 
 	^ self
@@ -62,13 +58,13 @@ JacksonReader >> next [
 		  parseValue
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'initialization' }
 JacksonReader >> on: aReadStream [
 
 	readStream := aReadStream
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'parsing-internal' }
 JacksonReader >> parseCharacter [
 
 	| char |
@@ -77,7 +73,7 @@ JacksonReader >> parseCharacter [
 		  ifFalse: [ char ]
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'private' }
 JacksonReader >> parseCharacterHex [
 
 	| value codePoint |
@@ -89,13 +85,13 @@ JacksonReader >> parseCharacterHex [
 			"Characters not in the Basic Multilingual Plane are encoded as a UTF-16 surrogate pair""See https://tools.ietf.org/html/rfc7159#section-7"
 			leadSurrogate := value.
 			trailSurrogate := self parseTrailingSurrogateHexEscape.
-			codePoint := leadSurrogate - 16rD800 * 16r400
+			codePoint := 16r400 * (leadSurrogate - 16rD800)
 			             + (trailSurrogate - 16rDC00).
 			codePoint := 16r10000 + codePoint ].
 	^ Character codePoint: codePoint
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'private' }
 JacksonReader >> parseCharacterHex4Value [
 
 	| value |
@@ -104,7 +100,7 @@ JacksonReader >> parseCharacterHex4Value [
 	^ value
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'parsing-internal' }
 JacksonReader >> parseCharacterHexDigit [
 
 	| digit |
@@ -116,7 +112,7 @@ JacksonReader >> parseCharacterHexDigit [
 	self error: 'hex-digit expected'
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'parsing-internal' }
 JacksonReader >> parseConstantDo: block [
 	"Parse and consume either true|false|nil|null and execute block
 	or else do nothing (but do not back up).
@@ -130,7 +126,7 @@ JacksonReader >> parseConstantDo: block [
 		^ self match: 'null' do: [ block value: nil ] ]
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'parsing-internal' }
 JacksonReader >> parseEscapedCharacter [
 
 	| char |
@@ -147,7 +143,7 @@ JacksonReader >> parseEscapedCharacter [
 	^ char
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'parsing-internal' }
 JacksonReader >> parseNumber [
 
 	| negated number |
@@ -166,7 +162,7 @@ JacksonReader >> parseNumber [
 	^ number
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'parsing-internal' }
 JacksonReader >> parseNumberExponent [
 
 	| number negated |
@@ -179,7 +175,7 @@ JacksonReader >> parseNumberExponent [
 	^ 10 raisedTo: number
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'parsing-internal' }
 JacksonReader >> parseNumberInteger [
 
 	| number |
@@ -189,7 +185,7 @@ JacksonReader >> parseNumberInteger [
 	^ number
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'parsing-internal' }
 JacksonReader >> parseString [
 
 	| result |
@@ -201,7 +197,7 @@ JacksonReader >> parseString [
 	^ result
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'parsing' }
 JacksonReader >> parseValue [
 
 	| char |
@@ -212,10 +208,10 @@ JacksonReader >> parseValue [
 		char = $" ifTrue: [ ^ self parseString ].
 		(char = $- or: [ char isDigit ]) ifTrue: [ ^ self parseNumber ].
 		self parseConstantDo: [ :value | ^ value ] ].
-	self error: 'invalid input: ' , char asString
+	self error: 'invalid input'
 ]
 
-{ #category : 'private - initialization' }
+{ #category : 'private' }
 JacksonReader >> stringStreamContents: block [
 
 	stringStream

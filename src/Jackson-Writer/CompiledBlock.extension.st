@@ -1,6 +1,6 @@
 Extension { #name : 'CompiledBlock' }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : '*Jackson-Writer' }
 CompiledBlock >> jacksonOn: jacksonWriter [
 
 	jacksonWriter writeCompiledBlock: self

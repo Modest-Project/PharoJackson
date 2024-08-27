@@ -1,7 +1,7 @@
 Class {
 	#name : 'MockClassWithNoInstVars',
 	#superclass : 'Object',
-	#category : 'Jackson-Core-Tests-Mock',
-	#package : 'Jackson-Core-Tests',
+	#category : 'Jackson-Tests-Mock',
+	#package : 'Jackson-Tests',
 	#tag : 'Mock'
 }

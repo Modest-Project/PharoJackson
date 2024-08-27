@@ -4,8 +4,8 @@ Class {
 	#instVars : [
 		'writer'
 	],
-	#category : 'Jackson-Core-Tests',
-	#package : 'Jackson-Core-Tests'
+	#category : 'Jackson-Tests',
+	#package : 'Jackson-Tests'
 }
 
 { #category : 'private' }

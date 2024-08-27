@@ -1,6 +1,6 @@
 Extension { #name : 'Integer' }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : '*Jackson-Writer' }
 Integer >> jacksonOn: jacksonWriter [
 	jacksonWriter writeInteger: self
 ]

@@ -1,21 +1,22 @@
 Class {
-	#name : #BaselineOfJacksonWriter,
-	#superclass : #BaselineOf,
-	#category : #BaselineOfJacksonWriter
+	#name : 'BaselineOfJacksonWriter',
+	#superclass : 'BaselineOf',
+	#category : 'BaselineOfJacksonWriter',
+	#package : 'BaselineOfJacksonWriter'
 }
 
-{ #category : #baselines }
+{ #category : 'baselines' }
 BaselineOfJacksonWriter >> baseline: spec [
 
 	<baseline>
-	spec for: #common do: [
-		"Packages"
+	spec for: #common do: [ "Packages"
 		spec
-			package: #'Jackson-Core-Writer';
-			package: #'Jackson-Core-Tests' with: [ spec requires: #( 'Jackson-Core-Writer' ) ].
+			package: #'Jackson-Writer';
+			package: #'Jackson-Reader';
+			package: #'Jackson-Tests' with: [ spec requires: #( 'core' ) ].
 		"Groups"
 		spec
-			group: 'default' with: #( 'Core' 'Tests' );
-			group: 'Core' with: #( 'Jackson-Core-Writer' );
-			group: 'Tests' with: #( 'Jackson-Core-Tests' ) ]
+			group: 'default' with: #( 'core' 'tests' );
+			group: 'core' with: #( 'Jackson-Writer' 'Jackson-Reader' );
+			group: 'tests' with: #( 'Jackson-Tests' ) ]
 ]

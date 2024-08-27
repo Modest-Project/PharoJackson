@@ -1,6 +1,6 @@
 Extension { #name : 'OrderedDictionary' }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : '*Jackson-Writer' }
 OrderedDictionary >> jacksonOn: jacksonWriter [
 
 	self class == OrderedDictionary

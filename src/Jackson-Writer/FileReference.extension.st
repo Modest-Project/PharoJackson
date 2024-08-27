@@ -1,6 +1,6 @@
 Extension { #name : 'FileReference' }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : '*Jackson-Writer' }
 FileReference >> jacksonOn: jacksonWriter [
 
 	self fileSystem isDiskFileSystem

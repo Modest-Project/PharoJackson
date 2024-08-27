@@ -1,6 +1,6 @@
 Extension { #name : 'UndefinedObject' }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : '*Jackson-Writer' }
 UndefinedObject >> jacksonOn: jacksonWriter [
 	jacksonWriter writeNull
 ]

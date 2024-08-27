@@ -1,6 +1,6 @@
 Extension { #name : 'Dictionary' }
 
-{ #category : '*Jackson-Core-Writer' }
+{ #category : '*Jackson-Writer' }
 Dictionary >> jacksonOn: jacksonWriter [
 
 	self class == Dictionary
